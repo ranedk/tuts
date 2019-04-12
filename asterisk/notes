@@ -1,0 +1,134 @@
+modular structure
+all channles (Telephone, trunk, PRI) treated equally
+
+Asterisk is built on modules. A module is a loadable component that provides a specific functionality, such as a channel driver (for example, chan_sip.so), or a resource that allows connection to an external technology (such as func_odbc.so). Asterisk modules are loaded based on the /etc/asterisk/modules.conf file.
+
+
+The types of modules in Asterisk include the following:
+- Applications
+- Bridging modules
+- Call detail recording (CDR) modules
+- Channel drivers
+- Codec translators
+- Format interpreters
+- Dialplan functions
+- PBX modules
+- Resource modules
+- Add-on modules
+- Test modules
+
+The Asterisk configuration files include extensions.conf, sip.conf, modules.conf, and dozens of other files that define parameters for the various channels, resources, modules, and functions that may be in use.  These files will be found in /etc/asterisk. You will be working in this folder a lot as you configure and administer your Asterisk system.
+
+
+Asterisk modules are usually installed to the /usr/lib/asterisk/modules folder.
+
+
+The /var/lib/asterisk folder is where system prompts, AGI scripts, music on hold, and other resource files are stored.
+
+The spool is where applications store files on a Linux system that are going to change frequently, or that will be processed by other processes at a later time. For example, Linux print jobs and pending emails are normally written to the spool until they are processed.
+In Asterisk, the spool is used to store transient items such as voice messages, call re‐ cordings, 4 call files, and so forth.
+The Asterisk spool will be found under the /var/spool/asterisk directory.
+
+
+Asterisk is capable of generating several different kinds of log files. The /var/log/asterisk folder is where things such as call detail records (CDRs), channel events from CEL, debug logs, queue logs, messages, errors, and other output are written.
+
+
+The dialplan is the heart of Asterisk. All channels that arrive in the system will be passed through the dialplan, which contains the call-flow script that determines how the incoming calls are handled.
+
+- Using traditional Asterisk dialplan syntax in /etc/asterisk/extensions.conf
+- Using Asterisk Extension Logic (AEL) in /etc/asterisk/extensions.ael
+- Using Lua in /etc/asterisk/extensions.lua
+
+
+The asterisk.conf configuration file allows you to tweak various settings that can affect how Asterisk runs as a whole.  There is a sample asterisk.conf file included with the Asterisk source. It is not necessary to have this file in your /etc/asterisk folder to have a working system
+
+
+You need a modules.conf file in your /etc/asterisk folder. If you simply define autoload=yes in your modules.conf file, Asterisk will search for all modules in the /usr/lib/asterisk/modules folder and load them at startup.
+We prefer to do these days is to allow Asterisk to automatically load the modules that it finds, but to explicitly tell Asterisk not to load any modules we do not want loaded by use of the noload directive.
+
+
+The sounds that people expect from the telephone network vary in different parts of the world. Different countries or regions present different sounds for events such as dialtone, busy signal, ringback, congestion, and so forth.  The indications.conf file defines the parameters for the various sounds that a telephone system might be expected to produce, and allows you to customize them.
+
+
+$ asterisk -cvvv
+command to run asterisk in interactive mode.
+
+If we look at our output, we see we’re missing the following configuration files:
+acl.conf, manager.conf, udptl.conf, features.conf, ccss.conf, res_stun_monitor.conf, and smdi.conf.
+
+$ cd ~/src/asterisk-complete/asterisk/11
+$ for f in acl manager udptl features ccss res_stun_monitor smdi; do
+    cp configs/$f.conf.sample /etc/asterisk/$f.conf;
+done
+
+SIP config inside /etc/asterisk/sip.conf
+The channel configuration files, such as sip.conf, contain the configuration information relevant to that channel driver (such as chan_iax2.so or chan_sip.so), as well as the parameters and credentials specific to the telephony devices you wish to connect to Asterisk through that technology type.
+
+
+When a call comes into Asterisk, the identity of the incoming call is matched in the channel configuration file for the protocol in use (e.g., sip.conf). This file also handles authentication and defines where that channel will enter the dialplan.
+Once Asterisk has determined how to handle the channel, it will pass call control to the correct context in the dialplan (extensions.conf). The context parameter in the channel configuration file tells the channel where it will enter the dialplan (which contains all the information about how to handle and route the call).
+
+Conversely, if the dialplan has been programmed to dial another device (in the above example, this would happen at the point where extension 101 triggers the Dial() ap‐ plication), a request to dial telephony device 0000FFFF0002 will use the channel con‐ figuration file to determine how to pass the call back out of the dialplan to the destination telephone on the network (including such details as authentication, codec, and so forth).  The destination does not have to be a telephone. It can be any type of channel that Asterisk knows about.
+
+Sample sip.conf
+
+Calls can be placed using IP or username. I can call 192.168.2.1 or ranedk
+
+[general]                                                       ; default sections
+    context=unauthenticated                                     ; default context for all incoming calls (can be overridden by
+                                                                ; defining a different context)
+    allowguest=no                                               ; Disable unauthenticated calls
+    srvlookup=no                                                ; Disable DNS lookups for outbound calls
+    udpbindaddr=0.0.0.0                                         ; Listen to UDP on all interfaces (use a specific IPv4 or IPv6 address)
+    tcpenable=no                                                ; Disable TCP
+
+[office-phone](!)                                               ; ! defines a template for our devices
+    type=friend                                                 ; Match username first and IP second
+    context=LocalSets                                           ; Matching calls will enter the dialplan from this entrypoint
+    host=dynamic                                                ; Devices/Channels have to register before requesting a call
+    nat=force_rport,comedia                                     ; useful if device is behind a firewall or a different network
+    dtmfmode=auto                                               ; auto detect dtmf tones
+    disallow=all                                                ; reset which voice codecs if already defined in the [general] section
+    allow=g722                                                  ; audio codecs to accept from, and request to, the device in preference order
+    allow=ulaw
+    allow=alaw
+
+[0000FFFF0001](office-phone)                                    ; define a device name and use the office-phone template
+    secret=4VQ96sg6ROc                                          ; a unique password for this device
+
+[0000FFFF0002](office-phone)
+    secret=sKAw7GCTtcA                                          ; a unique password for this device
+
+
+If type is
+    type = user     ; use username from request headers and match it to names in sip.conf (names inside square brackets)
+    type = peer     ; use IP and port combination to match incoming requests
+    type = friend   ; user username and then IP
+
+
+NAT and complex network issues are painful to make asterisk work. Since SIP, Incoming RTP and Outgoing RTP are all required between the 2 machine to make the call happen, and all three have to traverse the network through firewalls, this is not trivial.
+
+====================================
+Better way to understand sip/pjsip.conf and extensions.conf (both sip and pjsip.conf have similar functionality)
+
+pjsip.conf will hold inbound user profile e.g. if a user with id 205 calls an extension 200, then asterisk will check in pjsip.conf for this user id 205
+
+[205]
+    type=endpoint
+    aors=205
+    context=inside      ;----> this is the context, asterisk will check the context in extensions.sip
+
+extension.conf
+
+[inside]
+    exten => 200,1,Dial(PJSIP/200)      ;---> it finds a matching rule, that rules by context "inside" for extension 200 should dial 200, it goes back to pjsip.con
+
+pjsip.conf
+[200]
+    type=aor
+    max_contacts=1              ;--> find the extension 200 and connect to whichever aors (address of records), all devices where 200 is registered
+
+====================================
+
+
+
