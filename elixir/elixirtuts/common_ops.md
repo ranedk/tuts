@@ -10,6 +10,7 @@ is decalred/initialized outside the code-block. variables in code-block are loca
 
 Instead of
 
+```elixir
     line_no = 50
     result = nil
     # ...
@@ -17,8 +18,9 @@ Instead of
         result = 50
     end
     IO.puts result
-
+```
 Use
+```elixir
     line_no = 50
     result =
         if line_no == 50 do
@@ -33,6 +35,4 @@ Use
             50 -> 50
             true -> nil
     IO.puts result
-
-
-- 
+```
