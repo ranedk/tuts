@@ -1,27 +1,37 @@
 List functions
 
 Most of list is covered in basics, functions, recursion chapters
-> List.foldl([1,2,3], "", fn value, acc -> "#{value}(#{acc})" end)  # -> "3(2(1()))"
-> List.foldr([1,2,3], "", fn value, acc -> "#{value}(#{acc})" end)  # -> "1(2(3()))"
+```elixir
+List.foldl([1,2,3], "", fn value, acc -> "#{value}(#{acc})" end)
+# -> "3(2(1()))"
+List.foldr([1,2,3], "", fn value, acc -> "#{value}(#{acc})" end)
+# -> "1(2(3()))"
+```
 
 Note: Replace is a costly operation
-> List.replace_at([1,2,3,4,4,6], 4, 5)  # -> [1, 2, 3, 4, 5, 6]
-
+```elixir
+List.replace_at([1,2,3,4,4,6], 4, 5)
+# -> [1, 2, 3, 4, 5, 6]
+```
 List.keyfind only gives the first occurence
-> List.keyfind([{:rane, 34, "python"}, {:amitu, 36, "rust"}, {:deepak, 35, "python"}], :rane, 0)    # -> {:rane, 34, "python"}
-> List.keyfind([{:rane, 34, "python"}, {:amitu, 36, "rust"}, {:deepak, 35, "python"}], "python", 2) # -> {:rane, 34, "python"}
-
+```elixir
+List.keyfind([{:rane, 34, "python"}, {:amitu, 36, "rust"}, {:deepak, 35, "python"}], :rane, 0)
+# -> {:rane, 34, "python"}
+List.keyfind([{:rane, 34, "python"}, {:amitu, 36, "rust"}, {:deepak, 35, "python"}], "python", 2)
+# -> {:rane, 34, "python"}
+```
 Others: List.keyreplace, List.keydelete
 
 Data structures:
-    Maps: Fast key-value lookup
-    Keyword: Non-unique keys, Ordered
-    Struct: Fixed number of fields
+
+    - Maps: Fast key-value lookup
+    - Keyword: Non-unique keys, Ordered
+    - Struct: Fixed number of fields
 
 Keywords:
 - Since they are ordered and lookups work only for atoms, they are often used as context to functions
 
-```
+```elixir
 defmodule Canvas do
     @defaults [ fg: "black", bg: "white", font: "Merriweather" ]
 
@@ -36,23 +46,24 @@ defmodule Canvas do
         IO.puts "Style: #{inspect Keyword.get_values(options, :style)}"
     end
 end
-
 Canvas.draw_text("hello", fg: "red", style: "italic", style: "bold")
 ```
 
 Map:
-
-> map = %{ name: "Dave", likes: "Programming", where: "Dallas" }
-> Map.keys map          # -> [:likes, :name, :where]
-> Map.values map        # -> ["Programming", "Dave", "Dallas"]
-> map[:name]            # -> "Dave"
-> map.name              # -> "Dave"
-> map1 = Map.drop map, [:where, :likes]     # -> %{name: "Dave"}
-> map2 = Map.put map, :also_likes, "Ruby"   # -> %{also_likes: "Ruby", likes: "Programming", name: "Dave", where: "Dallas"}
-> Map.keys map2         # -> [:also_likes, :likes, :name, :where]
-> Map.has_key? map1, :where     # -> false
-> { value, updated_map } = Map.pop map2, :also_likes    # -> {"Ruby", %{likes: "Programming", name: "Dave", where: "Dallas"}}
-> Map.equal? map, updated_map   # -> true
+```elixir
+map = %{ name: "Dave", likes: "Programming", where: "Dallas" }
+Map.keys map          # -> [:likes, :name, :where]
+Map.values map        # -> ["Programming", "Dave", "Dallas"]
+map[:name]            # -> "Dave"
+map.name              # -> "Dave"
+map1 = Map.drop map, [:where, :likes]     # -> %{name: "Dave"}
+map2 = Map.put map, :also_likes, "Ruby"
+# -> %{also_likes: "Ruby", likes: "Programming", name: "Dave", where: "Dallas"}
+Map.keys map2         # -> [:also_likes, :likes, :name, :where]
+Map.has_key? map1, :where     # -> false
+{ value, updated_map } = Map.pop map2, :also_likes
+# -> {"Ruby", %{likes: "Programming", name: "Dave", where: "Dallas"}}
+Map.equal? map, updated_map   # -> true
 
 
 person = %{ name: "Dave", height: 1.88 }
@@ -60,11 +71,11 @@ person = %{ name: "Dave", height: 1.88 }
 > %{ something: a_name } = person   # -> MatchError
 
 > %{ name: _, height: _ } = person  # ->  matches, does not give MatchError
-
+```
 NOTE: You cannot BIND keys, only values can be bound via pattern matching, this also happens to be a good practice in other languages
 
 List Comprehension
-
+```elixir
 people = [
     %{ name: "abhas", department: "aero", city: "kota"  },
     %{ name: "shyam", department: "aero", city: "patna" },
@@ -72,25 +83,31 @@ people = [
     %{ name: "rahul", department: "chem", city: "indore" },
     %{ name: "akhil", department:  "chem", city: "kota" },
 ]
+```
 
-> aero_guys = for person = %{ department: dept} <- people, dept == "aero", do: person
+```elixir
+aero_guys = for person = %{ department: dept} <- people, dept == "aero", do: person
+```
 
 - The generator clause bind each map in the list to person and binds the department to dept
 - the filter selector only those dept where dept value is "aero", do returns the matches
 
-> item = List.first people  # -> item = %{city: "kota", department: "aero", name: "abhas"}
+```elixir
+item = List.first people 
+# -> item = %{city: "kota", department: "aero", name: "abhas"}
 
-> for key <- [:city, :name] do
-    %{ ^key => value } = item
-    value
-    end
-
+for key <- [:city, :name] do
+  %{ ^key => value } = item
+  value
+  end
 # -> ["kota", "abhas"]
+```
 
 
 Updates on Map:
-
-> new_map = %{ old_map | key1 => value1,  key2 = value2, ...}
+```elixir
+new_map = %{ old_map | key1 => value1,  key2 = value2, ...}
+```
 Notes: This doesn't support adding new keys, can only update old keys
 
 
@@ -98,6 +115,7 @@ Struct:
 
 - They are like typed maps, keys cannot be added later and has default values and behaviours
 
+```elixir
 defmodule Attendee do
 
     defstruct name: "", paid: false, over_18: true
@@ -115,21 +133,28 @@ defmodule Attendee do
     end
 
 end
-
-> s1 = %Subscriber{}                            # ->  %Subscriber{name: "", over_18: true, paid: false}
-> s2 = %Subscriber{ name: "Dave" }              # ->  %Subscriber{name: "Dave", over_18: true, paid: false}
-> s3 = %Subscriber{ name: "Mary", paid: true }  # -> %Subscriber{name: "Mary", over_18: true, paid: true}
-
-> s3.name       #-> "Mary
+```
+```elixir
+s1 = %Subscriber{}                           
+# ->  %Subscriber{name: "", over_18: true, paid: false}
+s2 = %Subscriber{ name: "Dave" }              
+# ->  %Subscriber{name: "Dave", over_18: true, paid: false}
+s3 = %Subscriber{ name: "Mary", paid: true }  
+# -> %Subscriber{name: "Mary", over_18: true, paid: true}
+s3.name       #-> "Mary
+```
 
 - Updating
-> s4 = %Subscriber{ s3 | name: "Marie"}"        # -> %Subscriber{name: "Marie", over_18: true, paid: true}
+```elixir
+s4 = %Subscriber{ s3 | name: "Marie"}"        
+# -> %Subscriber{name: "Marie", over_18: true, paid: true}
+Attendee.may_attend_after_party(s4)
+```
 
-> Attendee.may_attend_after_party(s4)
 
 Nested Structs
 
-```
+```elixir
 defmodule Customer do
     defstruct name: "", company: ""
 end
@@ -138,35 +163,42 @@ defmodule BugReport do
     defstruct owner: %Customer{}, details: "", severity: 1
 end
 ```
-
-> report = %BugReport{owner: %Customer{name: "Dave", company: "Pragmatic"}, details: "broken" }
-
+```elixir
+report = %BugReport{owner: %Customer{name: "Dave", company: "Pragmatic"}, details: "broken" }
+```
 - Accessing attributes
-> report.owner.company
+```elixir
+report.owner.company
+```
 
 - Modifying a nested attribute is PAINFUL
-> report = %BugReport{ report | owner: %Customer{ report.owner | company: "PragProg" }}
+```elixir
+report = %BugReport{ report | owner: %Customer{ report.owner | company: "PragProg" }}
+```
 
 - Elixir gives a macro to do the above
 NOTE: Macros generate the same erlang code in elixir during compile time
 
-> put_in(report.owner.company, "PragProg")
-OR
-> put_in(report[:owner][:company], "PragProg")
+```elixir
+put_in(report.owner.company, "PragProg")
+# OR
+put_in(report[:owner][:company], "PragProg")
 
-> update_in(report.owner.name, &("Mr." <>  &1))     # -> runs a lambda on the variable
-OR
-> update_in(report[:owner][:name], &("Mr." <> &1))
+update_in(report.owner.name, &("Mr." <>  &1))    
+# -> runs a lambda on the variable
+# OR
+update_in(report[:owner][:name], &("Mr." <> &1))
+```
 
 put_in and update_in also offer non-macro runtime code to access fields in runtime
-
-> get_in(report, [:owner, :name])
-> put_in(report, [:owner, :name, :first], "Dev")
-
+```elixir
+get_in(report, [:owner, :name])
+put_in(report, [:owner, :name, :first], "Dev")
+```
 
 Access module (awesome module to put/update)
 
-```
+```elixir
 cast = [
     %{
         character: "Buttercup",
@@ -187,25 +219,33 @@ cast = [
 ]
 ```
 
-> get_in(cast, [Access.all(), :character])      # -> ["Buttercup", "Westley"]
-> get_in(cast, [Access.at(1), :role])           # -> "farm boy"
+```elixir
+get_in(cast, [Access.all(), :character])      
+# -> ["Buttercup", "Westley"]
+> get_in(cast, [Access.at(1), :role])           
+# -> "farm boy"
 
-> get_and_update_in(cast, [Access.all(), :actor, :last], fn (val) -> {val, String.upcase(val)} end) # -> Makes last name all caps
+get_and_update_in(cast, [Access.all(), :actor, :last], fn (val) -> {val, String.upcase(val)} end) 
+# -> Makes last name all caps
 
-> get_in(cast, [Access.all(), :actor, Access.elem(1)])      # -> ["Wright", "Elwes"]
+get_in(cast, [Access.all(), :actor, Access.elem(1)])      
+# -> ["Wright", "Elwes"]
 
-> IO.inspect get_and_update_in(cast, [Access.key(:buttercup), :role], fn (val) -> {val, "Queen"} end)  # -> Changes buttercup's role to Queen
+IO.inspect get_and_update_in(cast, [Access.key(:buttercup), :role], fn (val) -> {val, "Queen"} end)  
+# -> Changes buttercup's role to Queen
 
-> {popped_value, rest_} = Access.pop(%{name: "Elixir", creator: "Valim", type: "Superhuman"}, :name)
-        # -> popped_value = "Elixir", rest = %{creator: "Valim", type: "Superhuman"}
-
+{popped_value, rest_} = Access.pop(%{name: "Elixir", creator: "Valim", type: "Superhuman"}, :name)
+# -> popped_value = "Elixir", rest = %{creator: "Valim", type: "Superhuman"}
+```
 
 Sets (implemented as MapSet)
 
-> set1 = 1..5 |> Enum.into(MapSet.new)
-> set2 = 3..8 |> Enum.into(MapSet.new)
-> MapSet.member? set1, 3    # -> true
-> MapSet.union set1, set2   # -> MapSet<[1, 2, 3, 4, 5, 6, 7, 8]>
+```elixir
+set1 = 1..5 |> Enum.into(MapSet.new)
+set2 = 3..8 |> Enum.into(MapSet.new)
+MapSet.member? set1, 3    # -> true
+MapSet.union set1, set2   # -> MapSet<[1, 2, 3, 4, 5, 6, 7, 8]>
+```
 
 - MapSet.intersection, MapSet.subset etc.
 
@@ -218,27 +258,38 @@ Functionality Collection
 
 - Enum.to_list, Enum.map, Enum.concat, Enum.at, Enum.filter, Enum.reject, Enum.sort, Enum.take, Enum.take_every, Enum.take_while etc.
 
-> l = 1..10
-> Enum.take l, 3                                        # -> [1, 2, 3]
-> Enum.take_every l, 3                                  # -> [1, 3, 5]     Take every 3rd element
-> Enum.take_while [1,2,3,4,5,6,2,1], &(&1 < 4)          # -> [1, 2, 3]     Take till a condition matches
+```elixir
+l = 1..10
+Enum.take l, 3                                        
+# -> [1, 2, 3]
 
-> Enum.all? l, &(&1 < 4)                                # -> false
-> Enum.any? l, &(&1 < 4)                                # -> true
+Enum.take_every l, 3                                  
+# -> [1, 3, 5]     Take every 3rd element
 
-> Enum.zip [:a, :b, :c], [1, 2, 3]                      # -> [a: 1, b: 2, c: 3]
+Enum.take_while [1,2,3,4,5,6,2,1], &(&1 < 4)          
+# -> [1, 2, 3]     Take till a condition matches
 
-> Enum.reduce 1..100, &(&1 + &2)                        # -> 5050
+Enum.all? l, &(&1 < 4)                                
+# -> false
 
-```
+Enum.any? l, &(&1 < 4)                                
+# -> true
+
+Enum.zip [:a, :b, :c], [1, 2, 3]                      
+# -> [a: 1, b: 2, c: 3]
+
+Enum.reduce 1..100, &(&1 + &2)                        
+# -> 5050
+
 Enum.reduce ["Lets", "find", "the", "longest", "word", "here"], fn word, longest ->
     if String.length longest >= String.length word do
         longest
     else
         word
+```
 
 - Deal a hand of cards
-```
+```elixir
 import Enum
 deck = for rank <- '23456789TJKQA', suit <- 'CDHS', do [suit, rank]
 hands = deck |> shuffle |> chunk(13)
@@ -254,14 +305,15 @@ Streams
 
 
 To find the longest word in dictionary, without streams
-```
-IO.puts File.read!("/usr/share/dict/words")             # -> reads all file in one go
+```elixir
+IO.puts File.read!("/usr/share/dict/words")             
+# -> reads all file in one go
     |> String.split
     |> Enum.max_by(&String.length/1)
 
 # with Streams
-IO.puts File.open!("/usr/share/dict/words")             # -> creates a file handle (doesn't read yet)
-    |> IO.stream(:line)                                 # -> creates a stream, little slow, but good on memory
+IO.puts File.open!("/usr/share/dict/words")         # -> creates a file handle (doesn't read yet)
+    |> IO.stream(:line)                             # -> creates a stream, little slow, but good on memory
     |> Enum.max_by(&String.length/1)
 
 # Better, directly use file stream to read shortcut
@@ -269,8 +321,8 @@ IO.puts File.stream!("/usr/share/dict/words") |> Enum.max_by(&String.length/1)
 ```
 
 - Behaves exactly like Enumerables
-```
-[1,2,3,4]                                               # -> This can be a stream or a Enum. Larger the better, or IO stream
+```elixir
+[1,2,3,4]           # -> This can be a stream or a Enum. Larger the better, or IO stream
     |> Stream.map(&(&1*&1))
     |> Stream.map(&(&1+1))
     |> Stream.filter(fn x -> rem(x,2) == 1 end)
@@ -279,33 +331,38 @@ IO.puts File.stream!("/usr/share/dict/words") |> Enum.max_by(&String.length/1)
 
 Streams works best for large dataset. e.g.
 
-> Enum.map(1..10_000_000, &(&1+1)) |> Enum.take(5)      # -> Take more than 10 seconds to run
-> Stream.map(1..10_000_000, &(&1+1)) |> Enum.take(5)    # -> Runs instantly
+```elixir
+Enum.map(1..10_000_000, &(&1+1)) |> Enum.take(5)      # -> Take more than 10 seconds to run
+Stream.map(1..10_000_000, &(&1+1)) |> Enum.take(5)    # -> Runs instantly
+```
 
 Stream methods:
 - Cycle
-```
-Stream.cycle(~w{ green white }) |>              # -> generator to create a infinite list of ["green", "white", "green", "white", "green"....]
-    Stream.zip(1..5) |>                         # -> zips it to list [1,2,3,4,5] till the stream is over
+```elixir
+Stream.cycle(~w{ green white }) |>        # -> generator to create a infinite list of ["green", "white", "green", "white", "green"....]
+    Stream.zip(1..5) |>                   # -> zips it to list [1,2,3,4,5] till the stream is over
     Enum.map(fn {class, value} ->
         "<tr class='#{class}'><td>#{value}</td></tr>\n" end) |>
     IO.puts
 ```
 Output:
+```html
 <tr class="green"><td>1</td></tr>
 <tr class="white"><td>2</td></tr>
 <tr class="green"><td>3</td></tr>
 <tr class="white"><td>4</td></tr>
 <tr class="green"><td>5</td></tr>
+```
 
 - Stream.repeatedly
 Takes a function and invokes it each time a new value is wanted.
-
-> Stream.repeatedly(&:random.uniform/0) |> Enum.take(3)     # -> Generates 3 random numbers
-
+```elixir
+Stream.repeatedly(&:random.uniform/0) |> Enum.take(3)     
+# -> Generates 3 random numbers
+```
 - Stream.unfold
 Uses functions to generate a list, functions takes 2 values to generate the 3rd and so on (like fibonacci)
 
-> Stream.unfold({0,1}, fn {f1,f2} -> {f1, {f2, f1+f2}} end) |> Enum.take(8)
-
-
+```elixir
+Stream.unfold({0,1}, fn {f1,f2} -> {f1, {f2, f1+f2}} end) |> Enum.take(8)
+```
