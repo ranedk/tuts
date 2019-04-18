@@ -323,4 +323,5 @@ filing = DB.find_customers
   |> prepare_filing
 
 (1..10) |> Enum.map(&(&1*&1)) |> Enum.filter(&(&1 < 40))
+
 ```

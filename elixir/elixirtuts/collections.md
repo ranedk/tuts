@@ -362,7 +362,85 @@ Stream.repeatedly(&:random.uniform/0) |> Enum.take(3)
 ```
 - Stream.unfold
 Uses functions to generate a list, functions takes 2 values to generate the 3rd and so on (like fibonacci)
+> fn state -> { stream_value, new_state } end
 
 ```elixir
 Stream.unfold({0,1}, fn {f1,f2} -> {f1, {f2, f1+f2}} end) |> Enum.take(8)
+```
+
+- Stream.resource
+To create stream from a resource, e.g. a file
+```elixir
+Stream.resource(
+    # create and return a resource handle
+    fn -> File.open!("/tmp/t") end,
+
+    # take the resource object and process chunks one by one
+    # return a Enum and the resource handle
+    fn file -> case IO.read(file, :line) do
+        data when is_binary(data) -> {
+            [String.to_integer(String.trim(data)) + 200], file
+        }
+        _ -> {:halt, file}
+        end
+    end,
+
+    # close the resource
+    fn file -> File.close(file) end
+) |> Enum.take(5)
+```
+
+To create a timer, which counts down from 10 seconds to 4 seconds using a stream:
+```elixir
+Stream.resource(
+    fn -> 10 end,                 # start with 10
+                      
+    fn seconds -> case seconds do
+        data when
+        0 -> {:halt, 0}           # stop at 0
+        _ ->
+            Process.sleep(1000)   # sleep for a second
+            { [Integer.to_string(seconds)], seconds - 1 }
+        end
+    end,
+
+    # close the resource
+    fn _ -> nil end
+) |> Enum.take(4)
+```
+Collectable Protocol:
+Helps you create a collection by inserting elements
+```elixir
+Enum.into 4..7, [1, 2, 3]   # insert range 4..7 to a collection
+# -> [1, 2, 3, 4, 5, 6, 7]
+
+# Streams also implement collectable, lazily copy one stream to another
+Enum.into IO.stream(:stdio, :line), IO.stream(:stdio, :line)
+```
+
+Comprehensions:
+```elixir
+# result = for <generator or filter> [, into: txfn ], do: expression
+# into txfn is a tranformation function applied to output of expression
+
+for x <- [ 1, 2, 3, 4, 5 ], do: x * x
+# -> [1, 4, 9, 16, 25]
+
+for {key, val} <- %{"a" => 1, "b" => 2}, do: {key, val * val}
+# -> [{"a", 1}, {"b", 4}]
+
+# If you want a Map instead of a list of tuples, use into
+for {key, val} <- %{"a" => 1, "b" => 2}, into: Map.new, do: {key, val * val}
+# -> %{"a" => 1, "b" => 4}
+
+# filtering
+for x <- 1..10, rem(x, 2) == 0, do: x*x
+# -> [4, 16, 36, 64, 100]
+
+# Multiple loop (i x j iterations)
+for i <- 1..3, j <- 1..3, do: {i, j}
+# -> [{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}, {2, 3}, {3, 1}, {3, 2}, {3, 3}]
+
+
+
 ```
