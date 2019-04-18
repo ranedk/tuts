@@ -421,7 +421,7 @@ Enum.into IO.stream(:stdio, :line), IO.stream(:stdio, :line)
 Comprehensions:
 ```elixir
 # result = for <generator or filter> [, into: txfn ], do: expression
-# into txfn is a tranformation function applied to output of expression
+# into txfn is a tranformation function applied to output of expression (not exactly, but similar. :into takes values that implement Collectable protocol)
 
 for x <- [ 1, 2, 3, 4, 5 ], do: x * x
 # -> [1, 4, 9, 16, 25]
@@ -441,6 +441,25 @@ for x <- 1..10, rem(x, 2) == 0, do: x*x
 for i <- 1..3, j <- 1..3, do: {i, j}
 # -> [{1, 1}, {1, 2}, {1, 3}, {2, 1}, {2, 2}, {2, 3}, {3, 1}, {3, 2}, {3, 3}]
 
+# reusing first loop vars in internal loops
+for {min, max} <- min_max, x <- min..max, do: x
+# -> [1, 2, 3, 4, 5, 6]
 
+# multiple filter criterias
+for x <- 0..5, y <- 0..5, x < y, rem(x, 2) == 0, do: {x, y}  
+# [{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5}, {2, 3}, {2, 4}, {2, 5}, {4, 5}]
 
+# iterate list (represented as string)
+for c <- 'hello', do: c + 1
+# -> 'ifmmp'
+
+# Convert BitString to List (weird syntax) 
+for <<c <- "hello">>, do: c
+# -> 'hello'
+for <<c <- "hello">>, do:  <<c>>
+# ["h", "e", "l", "l", "o"]
 ```
+
+Note: Variables used in comprehension are scoped inside the comprehension and do not affect global scope
+
+

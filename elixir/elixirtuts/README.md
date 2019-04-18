@@ -6,9 +6,13 @@ As good as php/python in general efficiency
 
 iex -> elixir interactive mode (like python repl)
 
-iex help
+iex basics:
 ```elixir
+# help
 > h(List.first)
+
+# typeof
+> i "hello"
 ```
 
 Function calls:
@@ -194,6 +198,26 @@ length 'hellö' -> 5
 - NOTE: Unless you want to iterate, do not use single quote strings
 
 
+String manipulation:
+
+Elixir provides tons of string manipulation methods like:
+- capitalize
+- at
+- downcase
+- codepoints (split string into list of string)
+- duplicate (repeat)
+- ends_with?
+- first
+- last
+- length
+- pad_leading
+- pad_trailing
+- replace
+- reverse
+- slice
+- split
+
+
 Sigils:
 
 - Textual representation
@@ -240,6 +264,12 @@ regex = ~r/foo|bar/
 
 ~w(foo bar bat)a  
 # -> with atom modifer [:foo, :bar, :bat]
+
+~D[2019-03-25]  # Date object
+
+~T[12:19:56.123]    # Time object
+
+~N[2019-03-25 12:34:34.434]     # Raw Date time object
 ```
 
 - Use cases
@@ -490,6 +520,13 @@ case { 1, 2, 3 } do
     { 1, x, 3 } when x > 0 -> "This will match and assign x"
     _ -> "No match"
 end
+
+# Match errors to as case
+
+case File.open("case.ex") do
+    { :ok, file } -> IO.puts "First line: #{IO.read(file, :line)}"
+    { :error, reason } -> IO.puts "Failed to open file: #{reason}"
+end
 ```
 - Guards can only have limited expressions (quite a lot are supported), https://hexdocs.pm/elixir/master/guards.html
 - Use case for Guards
@@ -582,13 +619,24 @@ end
 - In case of exception, x and y are nil
 
 
-If-Unless
+If-Unless-Do-Else
 
 - unless is if-not (in other languages)
 ```elixir
 x = if x > 5, do: 5  # make x 5 if its greater than 5
 
+x = if x > 5, do: 5, else: x 
+
 x = unless x > 5, do: 5  # make x 5 if x is not greater than 5
+
+x = unless x > 5, do: 5, else: x 
+
+# multi-line
+if x > 5 do
+    5
+else
+    x
+end
 ```
 
 Calling function from Erlang
@@ -669,3 +717,18 @@ lp =
     )
     do: "Group: #{gid}, User: #{uid}"
 ```
+
+Exceptions:
+
+General rule is to let Elixir raise exceptions automatically. If you want to raise an exception, you can use
+```elixir
+raise "Giving up"
+# -> ** (RuntimeError) Giving up
+
+raise RuntimeError
+# -> ** (RuntimeError) runtime error
+
+raise RuntimeError, message: "override message"
+# -> ** (RuntimeError) override message
+```
+Avoid raising exceptions in general. VM takes care of those things properly.
