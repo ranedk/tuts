@@ -1,3 +1,16 @@
+# Installation
+On ubuntu, do not do apt install. Instead,
+```shell
+$ wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+$ sudo dpkg -i erlang-solutions_1.0_all.deb
+
+$ wget https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
+$ sudo apt-key add erlang_solutions.asc
+
+$ sudo apt-get update
+$ sudo apt-get install elixir erlang-dev
+```
+
 # BASICS
 
 Functional language, awesome concurrency => multi-core and multi-machines
