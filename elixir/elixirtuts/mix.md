@@ -1,10 +1,50 @@
+# mix - the project manager
+
+Mix is pre-installed with Elixir and is responsible for multiple tasks like dependency management, running scripts, generating docs, building the code etc.
+
+```bash
+# To get help from mix
+$ mix help
+
+# To start a new project (names issues)
+$ mix new issues
+
+# This will create the following structure
+issues
+├── .formatter.exs
+├── .gitignore
+├── README.md
+├── config
+│
+└── config.exs
+├── lib
+│
+└── issues.ex
+├── mix.exs
+└── test
+├── issues_test.exs
+└── test_helper.exs
+
+# To list all dependencies
+$ mix help deps
+```
+
+Tests are written inside `test` folder.
+```bash
+# To run tests
+$ mix test
+```
+
+Refer to the sample project to understand tests and code flow. Mix is configured using `mix.exs` which is explained below:
+
+```elixir
 defmodule Issues.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :issues,
-      escript: escript_config(),
+      app: :issues,     # name of app
+      escript: escript_config(),    # entry script config
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
@@ -43,3 +83,4 @@ defmodule Issues.MixProject do
   end
 
 end
+```
