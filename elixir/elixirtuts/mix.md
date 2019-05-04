@@ -67,7 +67,7 @@ defmodule Issues.MixProject do
   # since they cannot be put into deps (already internal to elixir)
   defp deps do
     [
-      { :httpoison, "~> 1.0.0" },
+      { :httpoison, "~> 1.0.0" },       # This for e.g. runs as a separate process outside main
       { :poison, "~> 3.1" },
       { :ex_doc, "~> 0.19"},
       { :earmark, "~> 1.3.2"}
@@ -78,9 +78,44 @@ defmodule Issues.MixProject do
 
   defp escript_config do
     [
-      main_module: Issues.CLI
+      main_module: Issues.CLI   # For a command line script, this gives the linke to the entry point (main)
     ]
   end
 
 end
 ```
+
+Based on the above config file:
+```shell
+# To list deps
+$ mix deps
+
+# To download deps
+$ mix deps.get
+
+# Package our program using mix:
+$ mix escript.build
+# generates a binary called 'issues'
+
+# For deployment, you will need to install elixir and erlang with Beam VM
+# to run this binary
+
+# To generate docs
+# mix docs
+
+```
+
+The file config/config.exs will store all application level constants
+
+To run a particular function in elixir with parameters, you can use
+
+```elixir
+$ mix run -e 'Issues.CLI.run(["-h"])'
+```
+
+You can find built-in libraries on
+- http://elixir-lang.org/docs.html
+- http://erlang.org/doc/
+
+External libraries on:
+- https://hex.pm
