@@ -119,3 +119,9 @@ You can find built-in libraries on
 
 External libraries on:
 - https://hex.pm
+
+# Tests
+
+## Docs married to tests
+
+One excellent feature is
