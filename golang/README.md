@@ -12,11 +12,16 @@ Best practices and some corners are difficult to get right and will require expe
 
 ### Installation:
 ```bash
-$ sudo tar -xvf go1.12.2.linux-amd64.tar.gz  // (get the latest version from https://golang.org/dl/)
+$ sudo tar -xvf go1.12.2.linux-amd64.tar.gz
+# (get the latest version from https://golang.org/dl/)
+
 $ sudo mv go /usr/local
 
-$ export GOROOT=/usr/local/go           // this is where all go binaries and compiler go
-$ export GOPATH=$HOME/Projects/Go       // this is where go libraries and dependencies go
+$ export GOROOT=/usr/local/go
+# this is where all go binaries and compiler go
+
+$ export GOPATH=$HOME/Projects/Go
+# this is where go libraries and dependencies go
 
 # put this in your zshrc (or bashrc)
 
@@ -29,10 +34,12 @@ $ go env  // verify installation
 $ cd /home/user/my-working-directory
 $ mkdir hello
 
-$ go mod init github.com/ranedk/hello   // initialize a go package, creates a file go.mod
+$ go mod init github.com/ranedk/hello
+# initialize a go package, creates a file go.mod
 
 # installing go dependencies
-$  go get github.com/SlyMarbo/rss       // Will install the package in $GOPATH and make an entry in go.mod
+$  go get github.com/SlyMarbo/rss
+# Will install the package in $GOPATH and make an entry in go.mod
 ```
 
 ### Basics
@@ -43,7 +50,7 @@ package main
 import (
     "fmt"
     "time"
-    "math/rand"         // math is the folder name, rand is the package name
+    "math/rand"  // math is the folder name, rand is the package name
 )
 
 func main() {
@@ -72,7 +79,8 @@ func swap(x, y string) (string, string) {
     return y, x
 }
 
-a, b := swap("hello", "world")      // since a and b have not been defined yet, use :=, this infers types automatically
+a, b := swap("hello", "world")  // since a and b have not been defined yet,
+                                // use :=, this infers types automatically
 
 x := 10
 y := 20
@@ -80,7 +88,8 @@ y := 20
 x = x + y      // := not required since x is already defined
 
 // Named returned values (this is confusing, don't use)
-func split(sum int) (x, y int) {    // find x and y in the function definition and returns them without explicit call
+func split(sum int) (x, y int) {    // find x and y in the function definition
+                                    //and returns them without explicit call
     x = sum * 4 / 9
     y = sum - x
     return
@@ -159,7 +168,8 @@ func cond1(x) {
 }
 
 func pow(x, n, lim float64) float64 {
-    if v := math.Pow(x, n); v < lim {       // v is scoped only inside if and else statement
+    if v := math.Pow(x, n); v < lim {   // v is scoped only inside
+                                        // if and else statement
         return v
     } else {
         fmt.Printf("%g >= %g\n", v, lim)
@@ -223,7 +233,8 @@ type Vertex struct {
 v1 := Vertex{1, 2}
 v2 := Vertex{X:1, Y:2}
 
-fmt.Println(v1, v2)     // prints complete v1 and v2 nicely (beautiful for debugging)
+fmt.Println(v1, v2)
+// prints complete v1 and v2 nicely (beautiful for debugging)
 
 v1.X = 100      // Access struct params
 
@@ -231,7 +242,8 @@ p1 := &v1       // pointer to struct
 
 Xvalue := (*p1).X   // The old and painful C like way to access
 
-Xvalue := p1.X      // Go is awesome, access works in the same way with values or pointers
+Xvalue := p1.X
+// Go is awesome, access works in the same way with values or pointers
 ```
 
 #### Arrays
@@ -250,12 +262,14 @@ func basicUsage() {
 // Slices
 
 primes := [6]int{2, 3, 5, 7, 11, 13}
-var s []int = primes[1:4]                   // this refers to the original array, changing
-                                            // values in s, will change value in primes
+var s []int = primes[1:4]       // this refers to the original array, changing
+                                // values in s, will change value in primes
 
-// Like python, slice has lower_bound:upper_bound, which default to 0:length_of_array
+// Like python, slice has lower_bound:upper_bound,
+// which default to 0:length_of_array
 
-var MySlice = []int{1, 2, 3, 4, 5}          // This is a slice since length is not mentioned, but is also an array
+var MySlice = []int{1, 2, 3, 4, 5}  // This is a slice since length
+                                    // is not mentioned, but is also an array
 
 // Array of structs
 s := []struct {
@@ -278,22 +292,22 @@ import "fmt"
 
 func main() {
     s := []int{2, 3, 5, 7, 11, 13}
-    printSlice(s)               // len=6 cap=6 [2 3 5 7 11 13]
+    printSlice(s)       // len=6 cap=6 [2 3 5 7 11 13]
 
     // Slice the slice to give it zero length.
-    s = s[:0]                   // now, length is zero, but s still points to original [0], so capacity is 6
-    printSlice(s)               // len=0 cap=6 []
+    s = s[:0]           // now, length is zero, but s still points to original [0], so capacity is 6
+    printSlice(s)       // len=0 cap=6 []
 
     // Extend its length.
-    s = s[:4]                   // now, length is 4, s points to original [0], so capacity is 6
-    printSlice(s)               // len=4 cap=6 [2 3 5 7]
+    s = s[:4]           // now, length is 4, s points to original [0], so capacity is 6
+    printSlice(s)       // len=4 cap=6 [2 3 5 7]
 
     // Drop its first two values.
-    s = s[2:]                   // now, length is 2, s points to original [2], so capacity is 6 - 2 = 4
-    printSlice(s)               // len=2 cap=4 [5 7]
+    s = s[2:]           // now, length is 2, s points to original [2], so capacity is 6 - 2 = 4
+    printSlice(s)       // len=2 cap=4 [5 7]
 
-    s = s[:4]                   // now, length is 4, s points to original [2], so capacity is 4
-    printSlice(s)               // len=4 cap=4 [5 7 11 13]
+    s = s[:4]           // now, length is 4, s points to original [2], so capacity is 4
+    printSlice(s)       // len=4 cap=4 [5 7 11 13]
 }
 
 func printSlice(s []int) {
@@ -331,8 +345,11 @@ s = append(s, 1)
 s = append(s, 2, 3, 4)         //s = [0,1,2,3,4]        capacity is 8
 
 // Rules for increasing capacity (heuristic optimization, can change in future)
-// If appending to the slice will increase its length by more than double, the new capacity is set to the new length.
-// Otherwise, double the capacity if the current length is less than 1024, or by 25% if it is larger. Repeat this step until the new capacity fits the desired length.
+// If appending to the slice will increase its length by more than double, the
+// new capacity is set to the new length.
+// Otherwise, double the capacity if the current length is less than 1024,
+// or by 25% if it is larger. Repeat this step until the new capacity fits
+// the desired length.
 
 // Loop arrays using range operator
 
@@ -351,7 +368,157 @@ for _, v := range arr {
 
 #### Maps (dictionaries)
 ```go
+type Vertex struct {
+    Lat, Long float64
+}
 
+loc := make(map[string]Vertex)    // declaring a map string -> Vertex struct
+loc["Bell Labs"] = Vertex{
+    40.68433, -74.39967,
+}
+fmt.Println(loc["Bell Labs"])
+
+// Other operations
+
+m := make(map[string]int)
+
+m["Answer"] = 42
+fmt.Println("The value:", m["Answer"])          // The value: 42
+
+m["Answer"] = 48
+fmt.Println("The value:", m["Answer"])          // The value: 48
+
+delete(m, "Answer")
+fmt.Println("The value:", m["Answer"])          // The value: 0
+
+fmt.Println("The value:", m["UndefinedAnswer"]) // The value: 0
+
+v, ok := m["Answer"]
+fmt.Println("The value:", v, "Present?", ok)    // The value: 0 Present? false
+
+
+// Right way to check if a key is present is
+v, ok := m["Answer"]
 ```
 
+#### Functions as parameters (functions are first class members)
+```go
+func apply(fn func(float64, float64) float64) float64 {
+    return fn(3, 4)
+}
+
+hypot := func(x, y float64) float64 {
+    return math.Sqrt(x*x + y*y)
+}
+fmt.Println(hypot(5, 12))
+
+fmt.Println(apply(hypot))
+fmt.Println(apply(math.Pow))
+
+// functions can be returned and closures are possible
+func adder() func(int) int {
+    sum := 0
+    return func(x int) int {
+        sum += x
+        return sum
+    }
+}
+```
+
+#### Struct methods
+
+You dont really define methods on struct (like classes),
+instead you define a method with a receiver
+```go
+
+type Vertex struct {
+    X, Y float64
+}
+
+func (v Vertex) Abs() float64 {        // v is the receiver (a value receiver specifically)
+    return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+func main() {
+    v := Vertex{3, 4}
+   fmt.Println(v.Abs())
+}
+
+// This is as good as passing v to Abs, just a better syntax
+// Also, you cannot do this outside the package where struct is defined
+// You can use type alias to define struct methods for structs outside packages e.g.
+
+// Define a alias to a primitive type
+type MyFloat float64
+
+// You can use Abs in the same package, not outside it though
+func (f MyFloat) Abs() float64 {
+	if f < 0 {
+		return float64(-f)
+	}
+	return float64(f)
+}
+
+
+// Pointer receivers: You can also have the methods on pointers to struct
+// Why need em? In go, all data is passed by value
+// (you read that right, _everything_ is passed by value)
+// So you must use pointers if you want to mutate the passed value
+
+// Now, for struct methods, if you have a value receiver,
+it won't be able to change the struct's instance values
+
+type Vertex struct {
+	X, Y float64
+}
+
+func (v Vertex) Abs() float64 {
+	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+}
+
+func (v *Vertex) Scale(f float64) {
+	v.X = v.X * f
+	v.Y = v.Y * f
+}
+```
+
+#### Important things to remember
+- Use pointer receiver when you want to mutate the underlying struct, or its large (so that there is no overhead of copying)
+- Use value receiver when you don't want to mutate
+
+- A function which takes pointer as a parameter will not compile if you try to pass a value to it and vice-versa.
+```go
+func Scale(v *Vertex) {
+    v.x = v.x * 100
+}
+v1 := Vertex(10, 20)
+Scale(v1)                // ERROR, wont compile
+Scale(&v1)               // Must pass pointer as defined
+```
+- However, a struct method, doesnt care if it has a value receiver or a pointer receiver. However, mutation of the receiver will succeed only if its a pointer recevier
+```go
+// Pointer receiver
+func (v *Vertex) Scale() {
+    v.x = v.x * 100
+}
+v := Vertex(10, 20)
+v.Scale()               // OK, Go interprets this as (&v).Scale()
+p := &v
+p.Scale()               // OK
+
+
+// Value receiver
+func (v Vertex) Scale() {
+    v.x = v.x * 100     // Since its a value receiver, mutation has no affect.
+}
+v := Vertex(10, 20)
+v.Scale()               // OK, still no mutation
+p := &v
+p.Scale()               // OK, Go interprets this as (*v).Scale(), still no mutation
+```
+
+- A struct should either have value receivers or pointer receivers in all its method. Do not mix them. Why? Lets catch this up after Interfaces.
+
+#### Interfaces
+- Interface
 
