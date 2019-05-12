@@ -110,7 +110,8 @@ var b bool      // by default, value of b is false
 #### Types
 bool: true/false
 
-string: "Hello world", 'hello world', `hello world` (backticks allow multi-line strings)
+string: "Hello world", `hello world` (backticks allow multi-line strings)
+character: 'a'
 
 int  int8  int16  int32  int64
 uint uint8 uint16 uint32 uint64 uintptr
@@ -864,6 +865,28 @@ for {
 }
 // This will block till any one condition gets unblocked.
 // default gets run if all of them are blocking
+```
+More safety in channels can be obtained by making then receive only or send only
+- `ch chan <- int` send only channel
+- `ch <- chan int` receive only channel
+
+```go
+func ping(pings chan<- string, msg string) {
+    pings <- msg
+}
+
+func pong(pings <-chan string, pongs chan<- string) {
+    msg := <-pings
+    pongs <- msg
+}
+
+func main() {
+    pings := make(chan string, 1)
+    pongs := make(chan string, 1)
+    ping(pings, "passed message")
+    pong(pings, pongs)
+    fmt.Println(<-pongs)
+}
 ```
 
 #### Locks (shit hits the roof)
