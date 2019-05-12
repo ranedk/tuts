@@ -177,6 +177,14 @@ func pow(x, n, lim float64) float64 {
     return lim
 }
 
+// Idiomatic usage
+// if <expression>; condition {
+//     code
+// } e.g.
+if t, ok := number.IsPositive(); ok {
+    fmt.Println("Found positive: ", number)
+}
+
 // switch case (break is implicit as soon as one case matches)
 
 func PrintOS() {
@@ -453,10 +461,10 @@ type MyFloat float64
 
 // You can use Abs in the same package, not outside it though
 func (f MyFloat) Abs() float64 {
-	if f < 0 {
-		return float64(-f)
-	}
-	return float64(f)
+    if f < 0 {
+        return float64(-f)
+    }
+    return float64(f)
 }
 
 
@@ -469,16 +477,16 @@ func (f MyFloat) Abs() float64 {
 it won't be able to change the struct's instance values
 
 type Vertex struct {
-	X, Y float64
+    X, Y float64
 }
 
 func (v Vertex) Abs() float64 {
-	return math.Sqrt(v.X*v.X + v.Y*v.Y)
+    return math.Sqrt(v.X*v.X + v.Y*v.Y)
 }
 
 func (v *Vertex) Scale(f float64) {
-	v.X = v.X * f
-	v.Y = v.Y * f
+    v.X = v.X * f
+    v.Y = v.Y * f
 }
 ```
 
@@ -520,5 +528,366 @@ p.Scale()               // OK, Go interprets this as (*v).Scale(), still no muta
 - A struct should either have value receivers or pointer receivers in all its method. Do not mix them. Why? Lets catch this up after Interfaces.
 
 #### Interfaces
-- Interface
+- Interface defined methods only
+- If a struct that has the same methods as the interface, the compiler automatically infers the "struct as implementing that interface" (in compile time)
 
+```go
+package main
+
+import "fmt"
+
+type Abser interface {
+    Abs() float64
+}
+
+type Vertex struct {X, Y float64}
+
+func (v Vertex) Abs() float64 {
+    return v.X*v.X + v.Y*v.Y
+}
+
+type MyFloat float64
+
+func (f MyFloat) Abs() float64 {
+    return float64(f)
+}
+
+func main() {
+    var p1 Abser            // Define the abser interface
+    var p2 Abser
+
+    v1 := Vertex{10, 20}
+    p1 = v1                // Abser interface matches with Vertex struct
+    fmt.Println(p1.Abs())
+
+    v2 := Vertex{10, 20}
+    p1 = &v2                // Abser interface matches with Vertex struct pointer
+    fmt.Println(p1.Abs())
+
+    f1 := MyFloat(200)
+    p2 = f1                 // Abser interface matched with MyFloat
+    fmt.Println(p2.Abs())
+
+    f2 := MyFloat(200)
+    p2 = &f2                // Abser interface matched with MyFloat pointer
+    fmt.Println(p2.Abs())
+}
+```
+
+- So far so good, however, the following doesnt work
+
+```go
+type Abser interface {
+    Abs() float64
+}
+
+type Vertex struct {X, Y float64}
+
+func (v *Vertex) Abs() float64 {
+    return v.X*v.X + v.Y*v.Y
+}
+
+func main() {
+    var p1 Abser
+
+    v1 := Vertex{10, 20}
+    p1 = v1        // Compile time error:
+                   // Vertex does not implement Abser (Abs method has pointer receiver)
+    p1.Abs()
+}
+```
+The reason for the compiler error is because Abs method is defined on Vertex pointer and NOT on Vertex. While Abser want it to be defined on value and not the pointer. To make this work, we can call Abs on a pointer.
+
+```go
+type Abser interface {
+    Abs() float64
+}
+
+type Vertex struct {X, Y float64}
+
+func (v *Vertex) Abs() float64 {
+    return v.X*v.X + v.Y*v.Y
+}
+
+func main() {
+    var p1 Abser
+
+    v1 := Vertex{10, 20}
+    p1 = &v1      // No error, p1 points to a pointer Vertex which implements Abs
+    p1.Abs()
+}
+```
+```go
+// nil receiver. If you expect the receiver or the receiver pointer to be nil.
+// do a nil check
+
+type I interface {
+    M()
+}
+
+func (t *T) M() {
+    if t == nil {
+        fmt.Println("<nil>")
+        return
+    }
+    fmt.Println(t.S)
+}
+
+var i I
+i.M()       // prints <nil>
+```
+
+#### Type Assertions
+
+In one line:
+> `x.(T)` asserts that `x` is not nil and that the value stored in `x` is of type `T`.
+
+Why would I use them:
+
+ - to check `x` is nil
+ - to check if it's convertible (assert) to another type
+ - convert (assert) to another type
+
+What exactly they return:
+
+ - `t := x.(T)` => t is of type `T`; if `x` is nil, it panics.
+
+ - `t, ok := x.(T)` => if `x` is nil or not of type `T` => `ok` is `false` otherwise `ok` is `true` and `t` is of type `T`.
+
+Lets take a scenario:
+
+- You define 4 structs, Circle, Square, Rectangle, Triangle, all have a method called Area()
+- You define a interface Shape with a Area() method
+```go
+shapes := []Shape[
+    Circle{1},
+    Square{1},
+    Rectangle{1, 1},
+    Traingle{1, 1, 1}
+]
+
+// Calculate area of all shapes
+total_area := float64(0)
+for _, s := range shapes {
+    total_area = area + s.Area()
+}
+```
+
+What if you want to extract Traingles out of the shapes. Type assertion helps:
+```go
+var traingles []Traingle
+for _, s := range shapes {
+    if traingle, ok := s.(Traingle); ok {
+       append(traingles, traingle)
+    }
+}
+
+// Use type switches
+var traingles, circles, squares, rectangles []Shape
+for _, s := range shapes {
+    switch v := i.(type) {
+    case Circle:                // If you want to match with pointer, use *Circle
+        append(circles, v)
+    case Traingle:
+        append(traingles, v)
+    case Square:
+        append(squares, v)
+    case Rectangle:
+        append(rectangles, v)
+    }
+}
+```
+
+```go
+// Internally, go provides a Stringer interface
+type Stringer interface {
+    String() string
+}
+
+// fmt.Println looks for it to print
+// You can define a String() method to change the way fmt.Println prints a struct
+
+// The error type is a built-in interface similar to fmt.Stringer:
+
+type error interface {
+    Error() string
+}
+
+// You can define custom errors as:
+type MyError struct {
+    When time.Time
+    What string
+}
+
+func (e *MyError) Error() string {
+    return fmt.Sprintf("at %v, %s",
+        e.When, e.What)
+}
+```
+
+#### Reading files
+```go
+// io package defines a interface io.Reader which needs
+// to define Read() method
+
+// file, network, connections, cipher all implement these
+
+package main
+
+import (
+    "fmt"
+    "io"
+    "strings"
+)
+
+func main() {
+    r := strings.NewReader("Hello, Reader!")
+
+    b := make([]byte, 8)
+    for {
+        n, err := r.Read(b)                 // Read will read 8 bytes at a time, till io.EOF
+                                            // because b is of size 8
+        fmt.Printf("n = %v err = %v b = %v\n", n, err, b)
+        fmt.Printf("b[:n] = %q\n", b[:n])
+        if err == io.EOF {
+            break
+        }
+    }
+}
+```
+
+- Coming back to why should a struct not mix pointer receiver and value receivers, like we have seen above, if a struct defines a method and that method has a pointer receiver you will have to take the interface as pointer `i := &v` and if its a value receiver, you will have to do it as `i = v`.
+Now, when you call the method on i, it wont be able to call those methods which are defined on the receiver of the other type.
+
+#### Concurrency (The real reason to learn Go)
+
+- Goroutines
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func say(s string) {
+    for i := 0; i < 5; i++ {
+        time.Sleep(100 * time.Millisecond)
+        fmt.Println(s)
+    }
+}
+
+func main() {
+    go say("world")         // This will be async
+    say("hello")
+}
+```
+
+- Channels
+Used to communicate between goroutines and synchronize them
+```go
+// Creating a channel which can be used to pass integers
+ch := make(chan int)
+
+// Send value v to channel ch.
+ch <- v
+
+// Receive from ch, and assign value to v
+v := <-ch
+```
+Receiving and sending to channels are blocking functions.
+- If the channel has a value, sending to it will be a blocking call
+- If a channel has nothing in it and you try to receive from it, its a blocking call
+
+To create a channel which can buffer a few values without blocking sending and receiving do `ch := make(chan int, 5)`
+- If the channel has 5 elements, both sending and receiving will be non-blocking
+- If the channel has 0 or 5 elements, receiving and sending will be blocking respectively
+
+pingpong example:
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+type Ball struct {hits int}
+
+func main() {
+    table := make(chan *Ball)               // table is the channel on which the ball will move
+    go player("ping", table)                // "ping" player
+    go player("pong", table)                // "pong" player
+
+    table <- new(Ball)                      // Create a ball throw it on the table, this may block if
+                                            // table already has a ball (in our case, there isn't)
+    time.Sleep(5 * time.Second)             // Wait for 5 seconds and
+    ball := <-table                         // The main() picks up the ball from table to stop the game
+    fmt.Println("Main catches ball", ball.hits)
+    panic("PANIC")                          // Dump the stack and the positions
+}
+
+func player(name string, table chan *Ball) {
+    for {
+        ball := <-table                     // blocks till there is a ball on the table
+        ball.hits++                         // once it gets the ball, it hits the ball
+        fmt.Println("Caught by ", name, ball.hits)
+        sleepTime := 1 * time.Second        // Keeps the ball for a second
+        fmt.Println("Sleeping for ", sleepTime)
+        time.Sleep(sleepTime)
+        table <- ball                       // Hits it back on the table
+    }
+}
+```
+- Don't rely on who will receive first. The order can be random it seems (not sure)
+```go
+// When receiving, you can check if the channel is still open:
+v, ok = <-ch
+
+// To continously loop till the channel is closed, use range
+for i := range c {
+    fmt.Println(i)
+}
+
+// Listening to multiple channels, use select
+for {
+    select {
+        case c <- x:
+            x, y = y, x+y
+        case <-quit:
+            fmt.Println("quit")
+            return
+        default:
+            fmt.Println("Nothing here")
+            time.Sleep(50 * time.Milliseconds)
+    }
+}
+// This will block till any one condition gets unblocked.
+// default gets run if all of them are blocking
+```
+
+#### Locks (shit hits the roof)
+- If you want multiple goroutines to not access the same variable, we need to use locks
+```go
+// SafeCounter is safe to use concurrently.
+type SafeCounter struct {
+    v   map[string]int
+    mux sync.Mutex
+}
+
+// Inc increments the counter for the given key.
+func (c *SafeCounter) Inc(key string) {
+    c.mux.Lock()
+    // Lock so only one goroutine at a time can access the map c.v.
+    c.v[key]++
+    c.mux.Unlock()
+}
+
+// Value returns the current value of the counter for the given key.
+func (c *SafeCounter) Value(key string) int {
+    c.mux.Lock()
+    // Lock so only one goroutine at a time can access the map c.v.
+    defer c.mux.Unlock()
+    return c.v[key]
+}
+```
