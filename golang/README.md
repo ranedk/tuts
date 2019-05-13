@@ -106,7 +106,24 @@ var i int       // by default, value of i is 0
 var s string    // by default, value of s is ""
 var b bool      // by default, value of b is false
 ```
+Variadic functions - functions which take any number of parameters:
+```go
+func sum(nums ...int) {         // like python *args
+    fmt.Print(nums, " ")
+    total := 0
+    for _, num := range nums {
+        total += num
+    }
+    fmt.Println(total)
+}
 
+sum(1, 2)
+sum(1, 2, 3)
+sum(1, 2, 3, 4, 5)
+
+nums := []int{1, 2, 3, 4}
+sum(nums...)                   // like python *arr
+```
 #### Types
 bool: true/false
 
