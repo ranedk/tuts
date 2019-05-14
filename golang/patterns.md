@@ -284,4 +284,179 @@ two  -  13
 ```
 
 #### Timeouts using Select
+```go
+func generator(msg string) <-chan string { // returns receive-only channel
+    ch := make(chan string)
+    go func() { // anonymous goroutine
+        for i := 0; ; i++ {
+            ch <- fmt.Sprintf("%s %d", msg, i)
+            time.Sleep(time.Second)
+        }
+    }()
+    return ch
+}
 
+func channelTimeout() {
+    ch := generator("Hi!")
+    for i := 0; i < 10; i++ {
+        select {
+        case s := <-ch:
+            fmt.Println(s)
+        case <-time.After(1 * time.Second): // time.After returns a channel that waits N time to send a message
+            fmt.Println("Waited too long!")
+            return
+        }
+    }
+}
+// Important to note is that every time select is executed, time.After resets to zero
+// So, if there nothing to receive on ch, time.After will receive in 1 second and exit
+
+func channelTimeEnd() {
+    timeEnd := time.After(5 * time.Second)
+    ch := generator("Hi!")
+    for i := 0; i < 10; i++ {
+        select {
+        case s := <-ch:
+            fmt.Println(s)
+        case <-timeEnd:             // Will send in 5 seconds
+            fmt.Println("Waited too long!")
+            return
+        }
+    }
+}
+// Unlike the channelTimeout, this one ends the loop in 5 seconds since it doesn't reset
+```
+
+#### Quit channel
+Quite a few cases, instead of timeout or timeEnd, you may want to close the loop deterministically.
+For this, create a quit channel and select on it. Whenever you want to quit, just pass something.
+The following quits as soon as you pass anything to the quit channel
+```go
+quit := make(chan bool)
+ch := generator("Yo")
+
+for i :=0; i< 10; i++ {
+    ch <- fmt.Sprintf("msg : %s", i)
+}
+quit <- true
+
+// in the loop, where ever you are listening
+select {
+    case v := <- ch:
+        fmt.Println(v)
+    case <- quit:
+        return
+}
+```
+
+If you want to do some clean ups before quiting, you can pass something back to the quit channel, like:
+```go
+quit := make(chan string)
+ch := generator("Yo")
+
+for i :=0; i< 10; i++ {
+    ch <- fmt.Sprintf("msg : %s", i)
+}
+quit <- "cleanup"
+<-quit
+fmt.Println("Cleaned up, quiting now")
+
+// in the loop, where ever you are listening
+select {
+    case v := <- ch:
+        fmt.Println(v)
+    case <- quit:
+        cleanup()
+        quit <- "cleaned"
+        return
+}
+```
+
+#### Collating results from a crawl
+Consider a scenario where you are doing api calls to an external system. The external system may return with delays.
+```go
+struct Data {}
+func Source1Crawl(s string) Data {
+    // will take arbiraty time to crawl
+    return Data{}
+}
+func Source2Crawl(s string) Data {
+    // will take arbiraty time to crawl
+    return Data{}
+}
+func Source3Crawl(s string) Data {
+    // will take arbiraty time to crawl
+    return Data{}
+}
+```
+Slow and Synchronous
+```go
+results := []Data
+results = append(results, Source1Crawl('term')
+results = append(results, Source2Crawl('term')
+results = append(results, Source3Crawl('term')
+return results
+```
+
+Slow and Async
+```go
+results := []Data
+c := make(chan Data)
+go func { c <- Source1Crawl('term')}
+go func { c <- Source1Crawl('term')}
+go func { c <- Source1Crawl('term')}
+for i := 0; i < 3; i++ {
+    data := <- c
+    results = results.append(results, data)
+}
+return results
+```
+Slow and Async with timeout
+Get whatever returns under 60 milliseconds, ditch everything else and return
+```go
+// Start channels as above
+
+timeout := time.After(60 * time.Millisecond)
+
+for i := 0;i < 3; i++ {
+    select {
+        case data := <- c:
+            results = results.append(results, data)
+        case <- timeout:
+            return results
+    }
+}
+return results
+```
+
+Fast and Async and Robust
+Make multiple requests for the same resource, get whichever is the fastest and return
+```go
+func GetFirst(s string, crawler func(string) Data) chan Data {
+    ch := make(chan Data)
+    go func() { ch <- crawler(s)}      // Launch multiple instances of crawler async
+    go func() { ch <- crawler(s)}      // keep putting data to a single channel
+    go func() { ch <- crawler(s)}
+    return <- ch                       // Return which ever comes first
+}
+
+func FastRobustCrawl() {
+    ch := make(chan Data)
+    go func() { ch <- GetFirst('term', Source1Crawl)} // Crawl sources async with the input 'term'
+    go func() { ch <- GetFirst('term', Source2Crawl)}
+    go func() { ch <- GetFirst('term', Source3Crawl)}
+
+    timeout := time.After(60 * time.Millisecond)
+
+    for i := 0; i < 3; i++ {
+        select {
+        case result := <-c:                     // Get which ever source returns
+            results = append(results, result)
+        case <-timeout:                         // Timeout
+            fmt.Println("timed out")
+            return
+        }
+    }
+    return results
+}
+```
