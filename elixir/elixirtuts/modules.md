@@ -1,4 +1,4 @@
-Modules and files:
+# Modules and files:
 
 - Create file math.ex, define a module inside it:
 
@@ -45,7 +45,7 @@ end
 ```
 
 
-Functions
+# Functions
 
 Note: Function returns the output of the last expression in the function.
 
@@ -113,7 +113,7 @@ Clever.square(5, 6)   # -> Error, this function will take same parameters
 Clever.square(5, 5)   # -> 25
 ```
 
-- Default arguments
+## Default arguments
 
 ```elixir
 defmodule Concat do
@@ -125,7 +125,7 @@ end
 IO.puts Concat.join("Hello", "world")       # Hello world
 IO.puts Concat.join("Hello", "world", "_")  # Hello_world
 ```
-- Function calls can be default arguments, they get executed only when variable is accessed
+> NOTE: Function calls can be default arguments, they get executed only when variable is accessed
 
 ```elixir
 defmodule DefaultTest do
@@ -134,9 +134,10 @@ defmodule DefaultTest do
     end
 end
 
-DefaultTest.dowork "rane" 
+DefaultTest.dowork "rane"
 # -> gets overridden, return value is "rane"
-DefaultTest.dowork        
+
+DefaultTest.dowork
 # -> gets evaluated, prints "hello", return value is :ok
 ```
 - Be careful with multiple clauses, possible to be in a situation where one code path
@@ -165,7 +166,7 @@ IO.puts Concat.join("Hello", "world", "_")  #=> Hello_world
 IO.puts Concat.join("Hello")                #=> Hello
 ```
 
-Recursion
+# Recursion
 
 - This is the most important part of immutable functional programming
 - Since you cannot mutate, you can to use tail recursion i.e. calling the same
@@ -237,7 +238,7 @@ end
 Enum.reduce([1, 2, 3], 0, fn(x, acc) -> x + acc end)
 ```
 
-Imports
+# Imports
 
 - alias
 ```elixir
@@ -255,24 +256,24 @@ MyModule.run
 - import
 
 ```elixir
-import List, only: [duplicate: 2]     
+import List, only: [duplicate: 2]
 # from List module import duplicate/2
 
-import List, except: [duplicate: 2]   
+import List, except: [duplicate: 2]
 # from List module import everything except duplicate/2
 
-import List, only: :default           
+import List, only: :default
 # import all macros and functions, except ones starting with underscore
 
 import List                           # import everything
 
-import List only: :functions          
+import List only: :functions
 # import all functions (not macros)
 
-import List only: :macros             
+import List only: :macros
 # import all macros (not functions)
 ```
-Note: require doesnt change the namespacing, compared to python, require is "import list", import is "from list import *"
+> Note: require doesnt change the namespacing, compared to python, require is "import list", import is "from list import *"
 
 
 Module attributes

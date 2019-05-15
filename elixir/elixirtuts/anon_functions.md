@@ -1,5 +1,5 @@
-Functions:
-- Anonymous functions:
+# Functions:
+## Anonymous functions:
 
 ```elixir
 fn
@@ -20,11 +20,11 @@ end
 
 handle_open.(File.open("code/intro/hello.exs"))
 # -> "Read data: IO.puts \"Hello, World!\"\n"
-handle_open.(File.open("nonexistent")) 
+handle_open.(File.open("nonexistent"))
 # -> "Error: no such file or directory"
 ```
 
-Functions returning functions
+## Functions returning functions
 ```elixir
 hello = fn ->
     fn ->
@@ -35,7 +35,7 @@ end
 hello.().()
 ```
 
-Closures
+## Closures
 
 ```elixir
 multiply = fn n -> (fn a -> n*a end) end
@@ -47,51 +47,50 @@ triple = multiply.(3)
 triple.(11)    # -> 33
 ```
 
-Functions can take other functions as parameters
+## Functions can take other functions as parameters
 ```elixir
 times_2 = fn n -> n * 2 end
 apply = fn (fun, value) -> fun.(value) end
 apply.(times_2, 6)     # -> 12
 ```
 
-Functional aspects of language
+## Functional aspects of language
 ```elixir
 Enum.map [1,2,3,4,5], fn n -> n * 2 end
-````
+```
 
-Note:
-- In case of a closure, you might want to pin the variable for a match. use the ^variable notation
+> Note: In case of a closure, you might want to pin the variable for a match. use the ^variable notation
 
-& shortcuts
+## & shortcut
 ```elixir
-add_one = &(&1 + 1)     
+add_one = &(&1 + 1)
 # -> same as add_one = fn (n) -> n + 1 end
 
-multipler = &(&1 * &2) 
+multipler = &(&1 * &2)
 # -> &1 means the first param, &2 means second param and so on
 
-divrem = &{ div(&1, &2), rem(&1, &2) }  
+divrem = &{ div(&1, &2), rem(&1, &2) }
 # -> tuples as functions
 
-divrem.(19, 4)    
+divrem.(19, 4)
 # -> {4, 3}
 
-divrem = &[ div(&1, &2), rem(&1, &2) ]  
+divrem = &[ div(&1, &2), rem(&1, &2) ]
 # -> List as functions
 
-divrem.(19, 4)    
+divrem.(19, 4)
 # -> [4, 3]
 
-s = &"bacon and #{&1}"    
+s = &"bacon and #{&1}"
 # -> String as functions
 
-s.("custard")     
+s.("custard")
 # -> bacon and custard"
 
 if_ends_with = &~r/.*#{&1}$/
-res = "cat" =~ if_ends_with.("t")   
+res = "cat" =~ if_ends_with.("t")
 # -> true
 
-> Enum.map [1,2,3,4], &(&1 * 2)  
+> Enum.map [1,2,3,4], &(&1 * 2)
 # -> [2, 4, 6, 8]
 ```
