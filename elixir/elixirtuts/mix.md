@@ -124,4 +124,4 @@ External libraries on:
 
 ## Docs married to tests
 
-One excellent feature is
+The problem with comments is that they just don’t get maintained. The code changes, the comment gets stale, and it becomes useless. Fortunately, ExUnit has doctest , a tool that extracts the iex sessions from your code’s @doc strings, runs it, and checks that the output agrees with the comment.

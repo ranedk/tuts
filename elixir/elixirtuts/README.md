@@ -19,7 +19,7 @@ As good as php/python in general efficiency
 
 iex -> elixir interactive mode (like python repl)
 
-iex basics:
+# iex basics:
 ```elixir
 # help
 > h(List.first)
@@ -28,13 +28,13 @@ iex basics:
 > i "hello"
 ```
 
-Function calls:
+# Function calls:
 ```elixir
 length('hello rane') # -> 10
 length 'hello rane'  # -> 10
 ```
 
-Basic types:
+# Basic types:
 - nil
 - integer, float
 - atom/symbol (must start with colon e.g. :status or :code)
@@ -45,13 +45,13 @@ Basic types:
 - Binary <<1, 2>>
 
 Type check methods:
-- is_atom
-- is_list
-- is_tuple
-- is_binary
-- is_bitstring
+- `is_atom`
+- `is_list`
+- `is_tuple`
+- `is_binary`
+- `is_bitstring`
 
-Booleans (true/false/nil)
+# Booleans (true/false/nil)
 - apart from nil and false, everything else evaluates to true
 - Are internally atoms(symbols)
 
@@ -60,7 +60,7 @@ is boolean(false)   # -> true
 is_atom(true)       # -> true
 ```
 
-Tuple methods:
+# Tuples:
 ```elixir
 size {1, 2, 3}  # -> 2
 ```
@@ -79,7 +79,7 @@ put_elem {1,2,3, :rane, {5,6}}, 3, 10  ->  {1, 2, 3, 10, {5, 6}}
 - Good for fixed set of elements
 
 
-List:
+# Lists:
 ```elixir
 length [1, 2, 3]  # -> 3
 ```
@@ -88,13 +88,16 @@ length [1, 2, 3]  # -> 3
 - Accessing first element is fast
 
 ```elixir
-[head | tail ] = [1, 2, 3, 4, 5, 6, 7]   
+[head | tail ] = [1, 2, 3, 4, 5, 6, 7]
 # ->  head = 1 and rest of it is tail
-length [head | tail]  ->  6  
+length [head | tail]  ->  6
 # -> head should be a single element, tail must be a list
 
 # Head and tail separation can be done after many elements too:
-[1,2,3,4 | [5,6,7]] == [1,2,3,4,5,6,7]
+[first, second, third | tail ] = [1, 2, 3, 4, 5, 6, 7]
+# -> first=1 second=2 third=3 tail=[4, 5, 6, 7]
+
+[1, 2, 3, 4 | [5, 6, 7]]  # ->  [1,2,3,4,5,6,7]
 ```
 - Enum and List module provides utilities for Enumerables (doesn't work on tuples)
 ```elixir
@@ -102,11 +105,12 @@ Enum.at [10, 20, 30], 0  ->  10
 List.flatten [1, 2, [3, 4, [5, 6]], [7]]  ->  [1, 2, 3, 4, 5, 6, 7]
 ```
 
-Keyword Lists: Key-Value pairs (key is neccessarily an atom and not unique):
+# Keyword Lists
+Key-Value pairs (key is neccessarily an *atom* and *not unique*):
 - List of Tuples with first element as an atom is represented as a Dict (python like lookup structure)
 
 ```elixir
-d = [{:a, 1}, {:b, 2}]  ->  [a: 1, b: 2]  
+d = [{:a, 1}, {:b, 2}]  ->  [a: 1, b: 2]
 # -> The space after : is required here unlike python
 # or
 d = [a: 1, b: 2]  # equivalent to above
@@ -142,9 +146,9 @@ Keyword.get_values l, :a   #-> [1, 3, 4]
 {:a, 1} in [a: 1, b: 2]  #-> true
 ```
 
-Maps (key-value pairs) %{ key => value, key => value }
+# Maps (key-value pairs) %{ key => value, key => value }
 
-- Behave like normal python dictionaries (unique keys, all possible types)
+- Behave like normal python dictionaries (*unique keys*, all possible types)
 
 ```elixir
 states = %{ "AL" => "Alabama", "WI" => "Wisconsin" }
@@ -153,7 +157,8 @@ states["AL"]
 
 - In operator
 ```elixir
-{"AL", "Alabama"} in states  # -> true
+{"AL", "Alabama"} in states     # -> true
+"AL" in states                  # -> true
 ```
 
 - If keys are atoms:
@@ -162,15 +167,14 @@ status = %{:success => 200, :not_found => 404}
 # OR
 status = %{success: 200, not_found: 404}
 
-status[:success]
+status[:success]    # -> 200
 # OR
-status.success
+status.success      # -> 200
 ```
 
-NOTE: Use Keyword lists for parameters, command line options etc. If you need a data
-structure, use Map
+> NOTE: Use Keyword lists for parameters, command line options etc. If you need a data structure, use Map
 
-Strings (double quote):
+# Strings (double quote):
 
 ```elixir
 # String interpolation/templating:
@@ -189,54 +193,52 @@ bit_size("hello")  -> 40
 "abc" == <<97, 98, 99>>  -> true
 ```
 
-Char "list" (single quotes)
+# Char "list" (single quotes)
 ```elixir
-is_binary('rane')  -> false
-is_list('rane') -> true
-length 'rane'  -> 4
-length 'hellö' -> 5
+is_binary('rane')  # -> false
+is_list('rane')    # -> true
+length 'rane'      # -> 4
+length 'hellö'     # -> 5
 
-'abc' == [97, 98, 99]
+'abc' == [97, 98, 99]   # -> true
 # Ascii integer value of letters using ?
-?a  ->  97
+?a  ==  97         # -> true
 # So above can be written as
-'abc' == [?a, ?b, ?c]  -> true
+'abc' == [?a, ?b, ?c]  # -> true
 
 # Also, by binary representation of strings concept
-> "abc" == <<?a, ?b, ?c>>
+"abc" == <<?a, ?b, ?c>>
 ```
 - Since these are printable characters, elixir does the conversion of [97, 98, 99] to 'abc' and <<97, 98, 99>> to "abc"
 - this doesn't happen for non-printable ascii codes e.g. [97, 98, 99, 1] and <<97, 98, 99, 1>> have no equivalent string representations
 
-- NOTE: Unless you want to iterate, do not use single quote strings
+> NOTE: Unless you want to iterate, do not use single quote strings
 
-
-String manipulation:
+# String manipulation:
 
 Elixir provides tons of string manipulation methods like:
-- capitalize
-- at
-- downcase
-- codepoints (split string into list of string)
-- duplicate (repeat)
-- ends_with?
-- first
-- last
-- length
-- pad_leading
-- pad_trailing
-- replace
-- reverse
-- slice
-- split
+-`capitalize`
+-`at`
+-`downcase`
+-`codepoints` (split string into list of string)
+-`duplicate` (repeat)
+-`ends_with?`
+-`first`
+-`last`
+-`length`
+-`pad_leading`
+-`pad_trailing`
+-`replace`
+-`reverse`
+-`slice`
+-`split`
 
-
-Sigils:
-
+# Sigils:
+Use case:
 - Textual representation
 - Start with ~
 
-Regex sigils:
+## Regex sigils:
 ```elixir
 regex = ~r/foo|bar/
 "foo" =~ regex                # -> true
@@ -258,29 +260,29 @@ regex = ~r/foo|bar/
 
 ```elixir
 # String sigils
-~s(this is a string with "double" quotes, not 'single' ones) 
+~s(this is a string with "double" quotes, not 'single' ones)
 # -> "this is a string with \"double\" quotes, not 'single' ones"
 
 # Character sigils
-~c(this is a char list containing 'single quotes')            
+~c(this is a char list containing 'single quotes')
 # -> 'this is a char list containing \'single quotes\''
 
 # Word lists
-~w(foo bar bat)   
+~w(foo bar bat)
 # -> default, without modifier ["foo", "bar", "bat"]
 
-~w(foo bar bat)s  
+~w(foo bar bat)s
 # -> with string modifier ["foo", "bar", "bat"]
 
-~w(foo bar bat)c  
+~w(foo bar bat)c
 # -> with character modifier  ['foo', 'bar', 'bat']
 
-~w(foo bar bat)a  
+~w(foo bar bat)a
 # -> with atom modifer [:foo, :bar, :bat]
 
-~D[2019-03-25]  # Date object
+~D[2019-03-25]          # Date object
 
-~T[12:19:56.123]    # Time object
+~T[12:19:56.123]        # Time object
 
 ~N[2019-03-25 12:34:34.434]     # Raw Date time object
 ```
@@ -301,8 +303,8 @@ Converts double-quotes to single-quotes.
 def convert(...)
 ```
 
-Functions:
-- Anonymous functions:
+# Functions:
+## Anonymous functions:
 
 ```elixir
 fn
@@ -316,71 +318,70 @@ end
 x = fn(a, b) -> a * b end
 # OR (without parenthesis)
 x = fn a,b -> a * b
-x.(3, 2) -> 6  # dot operator to call anonymous functions
+
+x.(3, 2) == 6       # true, dot operator to call anonymous functions
 
 swap = fn {a, b} -> {b, a} end
-swap.({1, 10})    #->  {10, 1}
+swap.({1, 10})      # ->  {10, 1}
 ```
 
-Operators:
+# Operators:
 - div for integer division
 - rem for remainder
 - \+  -  /  *
 
 ```elixir
 # Union ++
-[1, 2, 3] ++ [3, 4, 5]  -> [1, 2, 3, 3, 4, 5]
+[1, 2, 3] ++ [3, 4, 5]  # -> [1, 2, 3, 3, 4, 5]
 
 # Set Substraction
-[1, 2, 3, 4] -- [3, 4, 5, 6]  -> [1, 2]
+[1, 2, 3, 4] -- [3, 4, 5, 6]  # -> [1, 2]
 
 # In Operator (only on lists, not tuples)
-1 in [1, 2, 3, 4]
+1 in [1, 2, 3, 4]   # -> true
 
 # String Concatenation
-"Hello" <> " " <> "World"  -> "Hello World"
+"Hello" <> " " <> "World"  # -> "Hello World"
 
 # Pure Boolean (and or not)
-true and true  -> true
-true and not true -> false
+true and true  # -> true
+true and not true # -> false
 
 # Strictly takes only booleans
-1 and true  
-# -> * (BadBooleanError) expected a boolean on left-side of "and", got: 1
+1 and true
+# ERROR -> ** (BadBooleanError) expected a boolean on left-side of "and", got: 1
 
-1/0  
-# -> (ArithmeticError) bad argument in arithmetic expression :erlang./(1, 0)
+1/0
+# ERROR -> ** (ArithmeticError) bad argument in arithmetic expression :erlang./(1, 0)
 
-false and 1/0  
+false and 1/0       # -> false
 # ->  Like python, if false, leave the other side of AND
 
-true or 1/0 
+true or 1/0         # -> true
 # -> Like python, is true, leave the other side of OR
 ```
 
-- Mixed Boolean (&& || !)
+# Mixed Boolean (&& || !)
 
-NOTE: Everything is true except false and nil
+> NOTE: Everything is true except false and nil
 ```elixir
-1 && 3 && 2  ->  2
-3 || 1/0  -> 3
-0 || 1/0 -> 0
-nil && 1/0  -> nil
+1 && 3 && 2     # ->  2
+3 || 1/0        # -> 3
+0 || 1/0        # -> 0
+nil && 1/0      # -> nil
 
 # nil and false are not the same
-nil == false  -> false
+nil == false    # -> false
 ```
-- Comparison =, !=, ===, !==, <=, >=, < and >
-    - === is stict .. e.g. when comparing int and float
-    - You can compare between different data types (which is weird, should never be done)
-        but number < atom < reference < functions < port < pid < tuple < list
-        (reference, port and pid are data types)
+# Comparison `=, !=, ===, !==, <=, >=, < and >`
+    - `===` is stict .. e.g. when comparing int and float
+    - You can compare between different data types (which is weird, should never be done), but `number < atom < reference < functions < port < pid < tuple < list` (reference, port and pid are data types)
 ```elixir
-{1} > 10   ->  true
-[100] > {5000}  -> true
+{1} > 10           # ->  true
+[100] > {5000}     # -> true
 ```
 
-Pattern matching:
+# Pattern matching:
 - Too many things are accomplished using pattern matching e.g.
 
 ```elixir
@@ -392,27 +393,27 @@ Pattern matching:
 - Interesting use is to match function output as :ok or :error e.g.
 
 ```elixir
-{:ok, result} = {:ok, 3}  
+{:ok, result} = {:ok, 3}
 # -> when function given output
 
-{:ok, result} = {:error, :bad_input}  
+{:ok, result} = {:error, :bad_input}
 # ->  when function given error
 ```
 - String pattern matching
 ```elixir
-[a, b, c] = "ran"  
+[a, b, c] = "ran"
 # -> a,b,c get ascii codes for 'r', 'a', 'n' respectively
 
-<<a, b, c>> = 'ran' 
+<<a, b, c>> = 'ran'
 # -> a,b,c get ascii codes for 'r', 'a', 'n' respectively
 ```
 To get, first letter of a string:
 ```elixir
-<<a:: integer, b:: binary>> = "rane is cool"  
+<<a:: integer, b:: binary>> = "rane is cool"
 # ->  a is ?r and b is "ane is cool"
 ```
 
-Unicode:
+# Unicode:
 - A string in Elixir is a binary which is encoded in UTF-8
 
 ```elixir
@@ -422,27 +423,26 @@ size "héllò"
 > String.length "héllò"
 # -> 5 - returns the number of characters as perceived by humans
 ```
-NOTE: Generally, "size" is to be used when length is pre-calculated, "length" is to be used when length is calculated at runtime
+> NOTE: Generally, `size` is to be used when length is pre-calculated, `length` is to be used when length is calculated at runtime
 
 - To split string into list of strings
 ```elixir
-String.codepoints "héllò"  
-# ->  ["h", "é", "l", "l", "ò"]
+String.codepoints "héllò"   # ->  ["h", "é", "l", "l", "ò"]
 
-<< eacute :: utf8, rest :: binary >> = "épa"  
+<< eacute :: utf8, rest :: binary >> = "épa"
 # split head and tail
 
 IO.puts eacute  # -> 233
 
-IO.puts << eacute :: utf8 >>  # -> "é"  
+IO.puts << eacute :: utf8 >>  # -> "é"
 # Give utf8 encoded string representation
 
-IO.puts rest # -> "pa"
+IO.puts rest    # -> "pa"
 ```
 
-Blocks:
+# Control blocks
 
-- If block (if - do - else - end):
+## If block (if - do - else - end):
 
 ```elixir
 if <condition> do
@@ -474,7 +474,26 @@ x = if x > 5, do: 5
 x = if x > 5, do: 5, else: 10
 ```
 
-Switch-Case: (cond, do, true, end), break is implicit
+## If-Unless-Do-Else
+
+- unless is if-not (in other languages)
+```elixir
+x = if x > 5, do: 5  # make x 5 if its greater than 5
+
+x = if x > 5, do: 5, else: x
+
+x = unless x > 5, do: 5  # make x 5 if x is not greater than 5
+
+x = unless x > 5, do: 5, else: x
+
+# multi-line
+if x > 5 do
+    5
+else
+    x
+end
+```
+## Switch-Case: (cond, do, true, end), break is implicit
 
 ```elixir
 cond do
@@ -489,19 +508,19 @@ cond do
 end
 ```
 
-Pattern matching:
+*Pattern matching:*
 - "=" is not a assignment operator but a patten matching operator
 ```elixir
 x = 1   ->  Match x to 1
-^x = 1  ->  Match "value of x" to 1                       
+^x = 1  ->  Match "value of x" to 1
 
 # Pin x and match pattern
 ^x = 2  -> Gives MatchError, since value of x is not 2
 ```
 - Basically, this acts as an assertion
 
-- Note: Use underscore to ignore values (just like python)
-- Note: If a variable is unused, elixir raises a Warning, which can be gotten rid of by starting the variable name with underscore
+> Note: Use underscore to ignore values (just like python)
+> Note: If a variable is unused, elixir raises a Warning, which can be gotten rid of by starting the variable name with underscore
 ```elixir
 [h | _] = [10, 20, 30, 40]
 ```
@@ -513,9 +532,9 @@ def len([ head | tail ]), do: 1 + len(tail)
 # We can fix it with underscore as
 def len([ _head | tail ]), do: 1 + len(tail)
 ```
-- Note: Function calls are not allowed on LHS of match
+> Note: Function calls are not allowed on LHS of match
 
-Case:
+## Case:
 - Works like switch case (break is implicit), but pattern matching makes assignments possible
 - Different from cond (above), since cond does good-old boolean evaluation, case does pattern matching
 ```elixir
@@ -526,7 +545,7 @@ _ -> "This matches all values"
 end
 ```
 
-- Case Guards: conditions that need to be met with case
+### Case Guards: `when`, conditions that need to be met along with case
 ```elixir
 case { 1, 2, 3 } do
     { 4, 5, 6 } -> "This won’t match"
@@ -542,32 +561,63 @@ case File.open("case.ex") do
 end
 ```
 - Guards can only have limited expressions (quite a lot are supported), https://hexdocs.pm/elixir/master/guards.html
-- Use case for Guards
-    - Polymorphism
+#### Use case for Guards
+    - *Polymorphism*
         ```elixir
-        def first_is_zero?(tuple_or_list) when
-            elem(tuple_or_list, 0) == 0 or hd(tuple_or_list) == 0 do
-            true
+        defmodule Exercise do
+            def first_is_zero?(tuple_or_list) do
+                if elem(tuple_or_list, 0) == 0 or hd(tuple_or_list) == 0 do
+                true
+            end
+
+            def first_is_zero?(tuple_or_list) do
+                false
+            end
         end
 
         # This won't work since calling elem on list or hd on tuple raises exception
 
-        def first_is_zero?(tuple_or_list)
-            when elem(tuple_or_list, 0) == 0
-            when hd(tuple_or_list) == 0 do
+        defmodule Exercise do
+            def first_is_zero?(tuple_or_list)
+                when elem(tuple_or_list, 0) == 0 or hd(tuple_or_list) == 0 do
                 true
             end
 
+            def first_is_zero?(tuple_or_list) do
+                false
+            end
+        end
+        # This also won't work since when will evaluate both, and in case of error
+        # make the whole statement false
+
+        defmodule Exercise do
+            def first_is_zero?(tuple_or_list) do
+                when elem(tuple_or_list, 0) == 0
+                when hd(tuple_or_list) == 0 do
+                    true
+                end
+            end
+
+            def first_is_zero?(tuple_or_list) do
+                false
+            end
+        end
+
         # When used as Guards, errors are not raised
+        # You should use multiple guards instead of OR conditions
+
+        Tmp.first_is_zero?({0,1,2,3})           # -> true
+        Tmp.first_is_zero?([0,1,2,3])           # -> true
+        Tmp.first_is_zero?([11, 12, 13, 14])    # -> false
         ```
 
-NOTE: Guards should be used to put a validation/constraint on arguments.
+> NOTE: Guards should be used to put a validation/constraint on arguments.
 
-NOTE: Must not have complicated conditions or logic
+> NOTE: Must not have complicated conditions or logic
 
-NOTE: Use guards to pass different types to a function (list, tuple, int) and derive different behavior
+> NOTE: Use guards to pass different types to a function (list, tuple, int) and derive different behavior
 
-Functions:
+## Functions:
 
 - Anonymous functions also behave as case statements
 ```elixir
@@ -578,8 +628,7 @@ end
 ```
 - Functions do not mutate variables outside function scope
 
-
-Send & Receive:
+## Send & Receive:
 - In Elixir, you can spawn a process (erlang's light weight process) and using its PID to send and receive tasks to it
 
 ```elixir
@@ -598,8 +647,10 @@ receive do
         1000 ->
         IO.puts "Waiting without message for last 1000 seconds"
 end
+```
 
 # Try-Catch:
+```elixir
 try do
     throw 13
 catch
@@ -629,30 +680,9 @@ catch
     _ -> { nil, nil }
 end
 ```
-- In case of exception, x and y are nil
+In case of exception, x and y are nil
 
-
-If-Unless-Do-Else
-
-- unless is if-not (in other languages)
-```elixir
-x = if x > 5, do: 5  # make x 5 if its greater than 5
-
-x = if x > 5, do: 5, else: x 
-
-x = unless x > 5, do: 5  # make x 5 if x is not greater than 5
-
-x = unless x > 5, do: 5, else: x 
-
-# multi-line
-if x > 5 do
-    5
-else
-    x
-end
-```
-
-Calling function from Erlang
+## Calling function from Erlang
 
 ```elixir
 # :<erlang_module>.<function> <params> e.g.
@@ -671,10 +701,10 @@ Enum.max r    # -> 20
 Date.day_of_week(d1)  # -> 4
 Date.add d1, 7        # -> ~D[2019-01-10]
 
-d2 = ~D[2019-01-03]   
+d2 = ~D[2019-01-03]
 # This requires proper format, ~D[2019-1-3] will give error
 
-d2 == d1
+d2 == d1                          # -> true
 
 d3 = Date.add d2, 10
 date_range = Date.range(d3, d2)
@@ -704,7 +734,7 @@ lp =
     with {:ok, file} = File.open("/etc/passwd"),
         content = IO.read(file, :all),
         :ok = File.close(file),
-        [_, uid, gid] = Regex.run(~r/^_lp:.*?:(\d+):(\d+)/m, content)           
+        [_, uid, gid] = Regex.run(~r/^_lp:.*?:(\d+):(\d+)/m, content)
         # -> = can be replaced by <- (see below)
         do
             "Group: #{gid}, User: #{uid}"
@@ -717,7 +747,7 @@ result = with {[1, 2, 3], :rane} = {[1, 2, 3], :rane}, do: :success
 result = with {[1, 2, 3, 4], :rane} = {[1, 2, 3], :rane}, do: :success
 # -> MatchError
 
-result = with {[1, 2, 3, 4], :rane} <- {[1, 2, 3], :rane}, do: :success      
+result = with {[1, 2, 3, 4], :rane} <- {[1, 2, 3], :rane}, do: :success
 # -> result now equal nil, no MatchError raised
 
 # With Better indentation
