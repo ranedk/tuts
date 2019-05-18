@@ -5,3 +5,5 @@
 - Race Detector: https://blog.golang.org/race-detector
 
 - Go utilities: https://github.com/avelino/awesome-go
+
+- Visualize Go channels and patterns: https://divan.dev/posts/go_concurrency_visualize/
