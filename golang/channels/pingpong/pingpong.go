@@ -12,7 +12,6 @@ func main() {
     table := make(chan *Ball)
     go player("ping", table)
     go player("pong", table)
-    go player("pang", table)
 
     table <- new(Ball)
     time.Sleep(15 * time.Second)
