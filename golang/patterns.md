@@ -134,7 +134,7 @@ func MergeUsingSelect(ch1, ch2 <-chan Workload) <-chan Workload {
                 case s := <-ch2: merged <- s
             }
         }
-    }(ch)
+    }()
     return merged
 }
 
