@@ -931,3 +931,51 @@ func (c *SafeCounter) Value(key string) int {
     return c.v[key]
 }
 ```
+
+### Few words on OOP in Golang
+Golang OOP is different than Java for multiple reasons. Below is an anti-pattern:
+```go
+package animals
+
+type Bird interface {
+	Speaks() string
+}
+
+// implementation of Bird
+type Duck struct{}
+func (a Duck) Speaks() string { return "Quack" }
+```
+```go
+package zoo
+
+import "bird"
+
+func sing(b bird.Bird) string { return b.Speaks() }
+```
+This is not wrong, but anti-pattern because of a small reason.
+It defines an interface and the concrete type in the same file. Since Go infers
+interfaces during compile time, concrete types should be defined separately and
+the usage is where the interface should be defined.
+
+In general, when doing Golang:
+- Define concrete types in a separate file.
+- When using them, define interfaces and use them.
+
+```go
+package birds
+type Duck struct{}
+func (a Duck) Speaks() string { return "Quack" }
+```
+
+```go
+type Speaker interface {        // its not a Bird anymore
+	Speaks() string
+}
+
+func sing(s Speaker) string { return s.Speaks() }
+```
+So, you should define interfaces during implementation.
+
+However, there are exceptions to this rule e.g.
+- Define interfaces when you are providing the API for someone else to extend
+- Interface where a method of the interface, returns the interface again (Nodes in search algo)
