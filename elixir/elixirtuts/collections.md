@@ -1,7 +1,10 @@
 # List functions
+Implemented as linked list, so excellent for looping
+For large datasets, some operations will be slow (like access by index)
 
 Most of list is covered in basics, functions, recursion chapters
 ```elixir
+# Folding, Accumulating, Reducing whatever you may call this
 List.foldl([1, 2, 3], "", fn value, acc -> "#{value}(#{acc})" end)
 # -> "3(2(1()))"
 
@@ -9,7 +12,7 @@ List.foldr([1, 2, 3], "", fn value, acc -> "#{value}(#{acc})" end)
 # -> "1(2(3()))"
 ```
 
-> Note: Replace is a costly operation
+> Note: Replace is a costly operation since lists are linked lists
 ```elixir
 List.replace_at([10, 20, 30, 40, 40, 60], 4, 50)
 # -> [10, 20, 30, 40, 50, 60]
@@ -22,12 +25,12 @@ List.keyfind([{:rane, 34, "python"}, {:amitu, 36, "rust"}, {:deepak, 35, "python
 List.keyfind([{:rane, 34, "python"}, {:amitu, 36, "rust"}, {:deepak, 35, "python"}], "python", 2)
 # -> {:rane, 34, "python"}
 ```
-Others: List.keyreplace, List.keydelete
+Others: `List.keyreplace`, `List.keydelete`
 
 # Data structures:
 
-    - Maps: Fast key-value lookup
-    - Keyword: Non-unique keys, Ordered
+    - Maps: Fast key-value lookup (most used)
+    - Keyword: Non-unique keys, Ordered (used as named tuples in python, more structured than maps)
     - Struct: Fixed number of fields
 
 # Keywords:
@@ -109,12 +112,11 @@ for key <- [:city, :name] do
 # -> ["kota", "abhas"]
 ```
 
-
 Updates on Map:
 ```elixir
 new_map = %{ old_map | key1 => value1,  key2 = value2, ...}
 ```
-> Notes: This doesn't support adding new keys, can only update old keys
+> Note: This doesn't support adding new keys, can only update old keys
 
 # Struct:
 
@@ -183,7 +185,7 @@ report = %BugReport{ report | owner: %Customer{ report.owner | company: "PragPro
 ```
 
 - Elixir gives a macro to do the above
-NOTE: Macros generate the same erlang code in elixir during compile time
+> NOTE: Macros generate the same erlang code in elixir during compile time
 
 ```elixir
 put_in(report.owner.company, "PragProg")
@@ -258,7 +260,7 @@ MapSet.union set1, set2   # -> MapSet<[1, 2, 3, 4, 5, 6, 7, 8]>
 > Note: Dont use structs a lot, its more of a OOP concept and can/should be avoided in Elixir
 
 
-Functionality Collection
+# Functionality Collection
 
 - Enum implements tons of functionality around list, and work on anyone who implements a "Eumerable" Protocol
 
@@ -466,6 +468,4 @@ for <<c <- "hello">>, do:  <<c>>
 # ["h", "e", "l", "l", "o"]
 ```
 
-Note: Variables used in comprehension are scoped inside the comprehension and do not affect global scope
-
-
+> Note: Variables used in comprehension are scoped inside the comprehension and do not affect global scope

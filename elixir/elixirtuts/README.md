@@ -1,3 +1,5 @@
+# Quick review of everything Elixir
+
 # Installation
 On ubuntu, do not do apt install. Instead,
 ```shell
@@ -17,7 +19,7 @@ Functional language, awesome concurrency => multi-core and multi-machines
 Bad with string manipulation
 As good as php/python in general efficiency
 
-iex -> elixir interactive mode (like python repl)
+iex -> elixir interactive mode (like python repl ipython)
 
 # iex basics:
 ```elixir
@@ -37,7 +39,9 @@ length 'hello rane'  # -> 10
 # Basic types:
 - nil
 - integer, float
-- atom/symbol (must start with colon e.g. :status or :code)
+- atom/symbol
+    - must start with colon e.g. :status or :code
+    - used like named constants for status, state
 - list e.g. [1, 2, 3, 4]
 - tuple e.g. {1, 2, 3, 4}
 - range 1..10
@@ -60,7 +64,9 @@ is boolean(false)   # -> true
 is_atom(true)       # -> true
 ```
 
-# Tuples:
+# List Elements
+
+## Tuples:
 ```elixir
 size {1, 2, 3}  # -> 2
 ```
@@ -79,13 +85,14 @@ put_elem {1,2,3, :rane, {5,6}}, 3, 10  ->  {1, 2, 3, 10, {5, 6}}
 - Good for fixed set of elements
 
 
-# Lists:
+## Lists:
 ```elixir
 length [1, 2, 3]  # -> 3
 ```
 - Stored as linked lists
 - Updating is fast, accessing Nth element is slow
 - Accessing first element is fast
+- Most used general purpose list
 
 ```elixir
 [head | tail ] = [1, 2, 3, 4, 5, 6, 7]
@@ -105,7 +112,9 @@ Enum.at [10, 20, 30], 0  ->  10
 List.flatten [1, 2, [3, 4, [5, 6]], [7]]  ->  [1, 2, 3, 4, 5, 6, 7]
 ```
 
-# Keyword Lists
+# Lookup elements
+
+## Keyword Lists
 Key-Value pairs (key is neccessarily an *atom* and *not unique*):
 - List of Tuples with first element as an atom is represented as a Dict (python like lookup structure)
 
@@ -146,7 +155,7 @@ Keyword.get_values l, :a   #-> [1, 3, 4]
 {:a, 1} in [a: 1, b: 2]  #-> true
 ```
 
-# Maps (key-value pairs) %{ key => value, key => value }
+## Maps (key-value pairs) %{ key => value, key => value }
 
 - Behave like normal python dictionaries (*unique keys*, all possible types)
 
@@ -641,7 +650,7 @@ end
 
 # Collect the message
 receive do
-    :hello, pid } ->
+    { :hello, pid } ->
         IO.puts "Hello from #{inspect(pid)}"
     after
         1000 ->
@@ -689,7 +698,10 @@ In case of exception, x and y are nil
 
 :lists.flatten [1, 2, [3, 4, [5, 6], 7]]
 :math.sin :math.pi
+```
 
+## Misc
+```elixir
 # Range
 r = 4..20
 first..last = r  # -> first is 4, last is 20

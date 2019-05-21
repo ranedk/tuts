@@ -1,3 +1,6 @@
+# This file cannot be run, requires a mix config
+# This is just a sample of module and functions basics
+
 defmodule Math do
 
     def zero?(0) do

@@ -44,7 +44,6 @@ defmodule Math do
 end
 ```
 
-
 # Functions
 
 Note: Function returns the output of the last expression in the function.
@@ -324,5 +323,4 @@ filing = DB.find_customers
   |> prepare_filing
 
 (1..10) |> Enum.map(&(&1*&1)) |> Enum.filter(&(&1 < 40))
-
 ```
