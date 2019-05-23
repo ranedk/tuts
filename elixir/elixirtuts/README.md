@@ -10,7 +10,7 @@ $ wget https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc
 $ sudo apt-key add erlang_solutions.asc
 
 $ sudo apt-get update
-$ sudo apt-get install elixir erlang-dev erlang-parsetools
+$ sudo apt-get install elixir erlang-dev erlang-parsetools erlang-observer
 ```
 
 # BASICS

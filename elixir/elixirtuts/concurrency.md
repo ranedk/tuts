@@ -138,8 +138,45 @@ Link2.run
 Running this gives a ERROR
 Error output: `** (EXIT from #PID<0.73.0>) :boom`
 
-To Convert this into a message and not an error:
-add `Process.flag(:trap_exit, true)` above spawn_link line
+Because of the link, it crashes `run` when `sad_function` crashes.
+
+To Convert this into a message and not an error, so that `run` knowns about `sad_function` crash and manage it:
+```elixir
+defmodule Link2 do
+    import :timer, only: [ sleep: 1 ]
+
+    # sad_function crashes after 500 milliseconds
+    def sad_function do
+        sleep 500
+        exit(:boom)
+    end
+
+    # spawn_link, link run to sad_function
+    def run do
+        Process.flag(:trap_exit, true)          # trap the link exit
+        spawn_link(Link2, :sad_function, [])
+        receive do
+            {:EXIT, from_pid, :normal} ->        # when sad crashes, run gets a message
+                IO.puts("Linked function exited normally)
+            {:EXIT, from_pid, reason} ->        # when sad crashes, run gets a message
+                IO.puts("Linked function crashed with reason: #{reason}")
+            msg ->
+                IO.puts "MESSAGE RECEIVED: #{inspect msg}"
+            after 1000 ->
+                IO.puts "Nothing happened as far as I am concerned"
+        end
+    end
+end
+Link2.run
+```
+>Note: When a process finishes properly, the reason it sends is `:normal`
+>Note: Links are bi-directional, so if the spawned crashes, the spawner gets a message, but if spawner crashes, then spawned also gets killed.
+
+If you want spawned to continue even if spawner has crashed, use `spawn_monitor`
+
+We can remove the `Process.flag` and `spawn_link` with `res = spawn_monitor(Link2, :sad_function, [])`
+This will create a monitor and if `Link2.sad_function` exits, will return a message:
+`{:DOWN, ref, :process, from_pid, reason} -> IO.puts("Exit reason: #{reason}")`
 
 
 
