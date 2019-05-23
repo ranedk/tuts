@@ -178,6 +178,25 @@ We can remove the `Process.flag` and `spawn_link` with `res = spawn_monitor(Link
 This will create a monitor and if `Link2.sad_function` exits, will return a message:
 `{:DOWN, ref, :process, from_pid, reason} -> IO.puts("Exit reason: #{reason}")`
 
+## Creating a parallel map implementation
+```elixir
+defmodule Parallel do
 
-
+    def pmap(collection, fun) do
+        me = self()
+        collection
+        |> Enum.map(fn (elem) ->
+            spawn_link fn ->
+                (send me, { self(), fun.(elem) })
+            end
+        end)
+        |> Enum.map(fn (pid) ->
+            receive do { ^pid, result } -> result end
+        end)
+    end
+end
+```
+1. Given a collection of `n` elements, The first `Enum.map` simply spawns `n` processes and applies the method `fun` on each element.
+2. This returns a list of `process_ids` for each spawned process in the same order
+3. The second `Enum.map` take each `process_id` and listens on `{^pid, result}`. By pinning the `pid`, it will receive only that `pid` and its result, so that the order is maintained!
 
