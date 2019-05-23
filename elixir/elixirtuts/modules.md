@@ -186,6 +186,8 @@ defmodule Rane do
     end
 end
 ```
+>Note: Function call should be THE LAST call in the function for recursion to work. Tail recursion works only if the last call is the same function call, otherwise it will put it in a stack and tail call optimization won't happen
+
 - Square all elements of a list
 ```elixir
     def square([]), do: []

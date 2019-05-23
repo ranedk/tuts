@@ -28,6 +28,14 @@ iex -> elixir interactive mode (like python repl ipython)
 
 # typeof
 > i "hello"
+
+# to run a external script named file.ex inside `iex`
+> c("file.ex")
+```
+
+# Running standalong scripts
+```bash
+$ elixirc file.ex
 ```
 
 # Function calls:

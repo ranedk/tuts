@@ -1,5 +1,8 @@
-# This file cannot be run, requires a mix config
+# This file cannot be run independently, requires a mix config
 # This is just a sample of module and functions basics
+#
+# To run this use iex
+# iex> c("Readme.ex")
 
 defmodule Math do
 
