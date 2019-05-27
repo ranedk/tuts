@@ -198,5 +198,59 @@ end
 ```
 1. Given a collection of `n` elements, The first `Enum.map` simply spawns `n` processes and applies the method `fun` on each element.
 2. This returns a list of `process_ids` for each spawned process in the same order
-3. The second `Enum.map` take each `process_id` and listens on `{^pid, result}`. By pinning the `pid`, it will receive only that `pid` and its result, so that the order is maintained!
+3. The second `Enum.map` take each `process_id` and creates a function that listens on `{^pid, result}`. By pinning the `pid`, it will receive only that `pid` and its result, so that the order is maintained!. This `Enum` maps each entry, to a function which waits on receive. Once all receives are done, the mapped list will be returned in the same order!!!! WOW!!!!
+
+## Create a fibbonacci server
+The purpose is to demonstrate a request/response like server
+- Give `n`, generate the `nth` fibbonacci number
+- When I ask it to shutdown, it should do so.
+```elixir
+defmodule FibServer do
+
+  def fib(client) do
+    send client, {self(), :ready}
+    :timer.sleep(1000)     # random sleep
+    receive do
+      {:evaluate, n, client} ->
+        send client, {self(), :answer, fib_calc(n)}
+        fib(client)
+      {:shutdown, _} ->
+        exit(:normal)
+    end
+  end
+
+  # The fib logic
+  defp fib_calc(0), do: 0
+  defp fib_calc(1), do: 1
+  defp fib_calc(n), do: fib_calc(n-1) + fib_calc(n-2)
+
+end
+
+# Simple basic client implementation
+defmodule FibClient do
+
+  def start_server do
+    spawn(FibServer, :fib, [self()])
+  end
+
+  def run do
+    receive do
+      {server_pid, :ready} ->
+        IO.puts("Server is ready")
+        send server_pid, {:evaluate, :random.uniform(15), self()}
+      {server_pid, :answer, result} ->
+        IO.puts("Server replied: #{result}")
+    end
+    run()
+  end
+
+end
+
+# Usage
+# iex
+# c("fib_server.ex")
+# c("fib_client.ex")
+# FibClient.start_server()
+# FibClient.run()
+```
 
