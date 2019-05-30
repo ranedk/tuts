@@ -253,4 +253,44 @@ end
 # FibClient.start_server()
 # FibClient.run()
 ```
+The basic client follows a request-response cycle, how do you scale it?
+Lets implement a `Scheduler` which will start multiple FibServer processes and send multiple numbers and get response.
+- The scheduler knows nothing about the task
+- If it gets `:ready` message from FibServer process, it will start sending it messages
+- It maintains a queue of all tasks (numbers for which Fib is to be calculated)
+- If the queue is empty, it sends `:shutdown` to the FibServer
 
+```elixir
+defmodule Scheduler do
+
+  def run(num_processes, module, func, to_calculate) do
+    1..num_processes                                            # n numbers
+    |> Enum.map(fn(_) -> spawn(module, func, [self()]) end)     # spawn n processes
+    |> schedule_process(to_calculate, [])                       # take list of pids, run schedule_process
+  end
+
+  def schedule_process(processes, queue, results) do
+    receive do
+      {:ready, pid} when length(queue) > 0 ->           # if queue is not empty
+        [next | tail] = queue                           # get the first item from queue
+        send pid, {:fib, next, self()}                  # send to a ready pid
+        schedule_process(processes, tail, results)      # loop again
+
+      {:ready, pid} ->                                  # if queue is empty
+        send pid, {:shutdown}                           # shut the process with pid
+        if length(processes) > 1 do                     # check if processes are still running
+          schedule_process(List.delete(processes, pid), queue, results) # if yes, remove current pid from process
+        else
+          Enum.sort(results, fn {n1,_}, {n2, _} -> n1 <= n2 end)    # if there are no more processes, sort all results
+
+      {:answer, number, result, _pid} ->                # get answers and put them in results with their inputs
+        schedule_process(processes, queue, [{number, result} | results])
+    end
+  end
+
+end
+
+# Usage
+> to_process = [1, 10, 44,45,23,6,34,5,34,3,5,43,3,5,.....]
+> Scheduler.run(5, FibServer, :fib, to_process)
+```
