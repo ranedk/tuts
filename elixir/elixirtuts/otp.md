@@ -65,6 +65,7 @@ iex> GenServer.call(:seq, :next_number)
 iex> GenServer.call(:seq, :next_number)
 iex> :sys.get_status :seq
 ```
+> Note: Pass any random things to GenServer.call and GenServer will crash! e.g. `GenServer.call(:seq, :bla)`
 For more details on the 6 callbacks provided by GenServer, refer docs
 
 # Code structuring
@@ -128,5 +129,69 @@ defmodule Sequence.Impl do
 end
 ```
 
+# Supervisors
+Managing crashes due to exceptions is painful in any system.
+In erlang/elixir supervisors make recovery from crashes easy and robust without losing data.
 
+To include supervisor in a project, start it as
+`$ mix new --sup sequence`
+With this, mix creates a file named `application.ex` inside `lib/sequence/` which is the supervisor.
+We need to tell the application, what needs to be supervised:
+```elixir
+defmodule Sequence.Application do
+
+    @moduledoc false
+    use Application
+
+    def start(_type, _args) do
+        children = [                # all processes which need to be watched
+            { Sequence.Server, 100},
+        ]
+
+        opts = [strategy: :one_for_one, name: Sequence.Supervisor]
+        Supervisor.start_link(children, opts)   # link child processes and start Sequence.Server init()
+    end
+end
+```
+Now, starting `iex -S mix` will autostart server
+```
+iex> Sequence.Server.increment_number 3
+:ok
+iex> Sequence.Server.next_number
+103
+
+iex> Sequence.Server.increment_number :bla      # this crashes the process, with a crash report
+                                                # But supervisor restarts the process with 100 as initial_number
+```
+> Note: When supervisor restarts a process, it used the `def start` in `application.ex`, so the state is LOST
+
+## Process and supervisor links
+`Supervisor.start_link` takes the processes and `opts` which defines the strategy on crash.
+- `:one_for_one` If the server dies, supervisor will restart it
+- `:one_for_all` If the server dies, all other processes are terminated and restarted
+- `:rest_for_one` if a server dies, the servers that follow it in the list of children are terminated, and then the dying server and those that were terminated are restarted.
+
+> Note: If a process may be terminated by the supervisor, its terminate behaviour needs to be defined as
+```elixir
+def terminate(_reason, current_number) do
+    <logic for termination>
+end
+```
+
+One way to make sure that server crashes, do not reset the `state` is to start another process and use it to store state. If the _storage process_ crashes, everything crashes and restarts, if the _Sequence process_ closes, only restart the _Sequence process_. So that _storage process_ still has the last `state`.
+The `init` of the _Sequence process_ will take no parameter, instead uses _storage process_ state to initialize it
+
+## Worker supervision
+Supervisor defines strategy on linking two process workers. But workers also need to define the restart strategy for supervisor:
+```elixir
+defmodule Sequence.Server do
+    use GenServer, restart: :transient      # Worker strategy
+```
+- `:permanent` - This process should always be running
+- `:temporary` - This process is temporary and must never be restarted if the worker dies
+- `:transient` - In case of Normal termination, this process must not be restarted, but if dies abnormally, restart it.
+
+> Note: At the very lowest level, it is a list of child specifications. A child spec is an Elixir map. It describes which function to call to start the worker, how to shut the worker down, the restart strategy, the worker type, and any modules apart from the main module that form part of the worker.
+
+> Note: You can create a child spec map using the `Supervisor.child_spec/2` function
 
