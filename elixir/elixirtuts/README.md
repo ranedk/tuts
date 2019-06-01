@@ -18,6 +18,7 @@ $ sudo apt-get install elixir erlang-dev erlang-parsetools erlang-observer
 Functional language, awesome concurrency => multi-core and multi-machines
 Bad with string manipulation
 As good as php/python in general efficiency
+In Elixir, when you call a function in a different module, you are actually sending values to a process
 
 iex -> elixir interactive mode (like python repl ipython)
 
