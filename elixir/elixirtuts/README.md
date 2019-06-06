@@ -69,8 +69,9 @@ Type check methods:
 - Are internally atoms(symbols)
 
 ```elixir
-is boolean(false)   # -> true
+is boolean(false)   # -> true or :true
 is_atom(true)       # -> true
+:true == true       # -> true
 ```
 
 # List Elements
@@ -106,7 +107,7 @@ length [1, 2, 3]  # -> 3
 ```elixir
 [head | tail ] = [1, 2, 3, 4, 5, 6, 7]
 # ->  head = 1 and rest of it is tail
-length [head | tail]  ->  6
+length [head | tail]   # ->  6
 # -> head should be a single element, tail must be a list
 
 # Head and tail separation can be done after many elements too:
@@ -125,7 +126,7 @@ List.flatten [1, 2, [3, 4, [5, 6]], [7]]  ->  [1, 2, 3, 4, 5, 6, 7]
 
 ## Keyword Lists
 Key-Value pairs (key is neccessarily an *atom* and *not unique*):
-- List of Tuples with first element as an atom is represented as a Dict (python like lookup structure)
+- List of Tuples with first element as an atom is represented as a Dict (python like tuple structure)
 
 ```elixir
 d = [{:a, 1}, {:b, 2}]  ->  [a: 1, b: 2]
