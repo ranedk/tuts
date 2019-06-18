@@ -29,6 +29,8 @@ $ kotlinc hello.kt -include-runtime  -d hello.jar
 $ java -jar hello.jar
 ```
 
+Start a kotlin repl using `kotlinc`
+
 # How to learn
 
 Valid Java is valid Kotlin. So think java, write kotlin.
