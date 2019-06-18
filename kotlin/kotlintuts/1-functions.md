@@ -23,13 +23,12 @@ val ints = listOf(1, 2, 3, 4, 5, 6)
 val odd = ints.filter(modulo(1))
 val evens = ints.filter(modulo(2))
 
-val isEven: (Int) -> Boolean = modulo(2)    // hold function in a variable, that is lambda
-listOf(1, 2, 3, 4).filter(isEven)           // filter expects a variable or a lambda
-
+val isEven: (Int) -> Boolean = modulo(2)  // hold function in a variable, that is lambda
+listOf(1, 2, 3, 4).filter(isEven)         // filter expects a variable or a lambda
 // OR
-val evens2 = ints.filter{ it -> it % 2 == 0}    // explicit input
+val evens2 = ints.filter{ it -> it % 2 == 0}   // explicit input
 // OR
-val evens3 = ints.filter{it % 2 == 0}           // Input optional (`it` is generic for all loops and lambdas)
+val evens3 = ints.filter{it % 2 == 0}     // Input optional (`it` is generic for all loops and lambdas)
 ```
 
 ## Multiple ways to define the variable
@@ -348,7 +347,7 @@ fun <T> Projection<T>.getOrElse(or: () -> T): T = when (this) {
     is ValueProjection -> this.value
 }
 ```
-`getOrElse` is implemented as an extension function on Projection itself because the function signature requires that T is an output in the or function. Check the chapter on variance
+`getOrElse` is implemented as an extension function on Projection itself because the function signature requires that T is an output in the `or` function. Check the chapter on variance
 
 ```kotlin
 // Usage:
@@ -360,156 +359,148 @@ val postcodes = getCurrentUser().rightProjection()      // Interested in rightPr
 ```
 
 
-    // Custom DSLs: Using infix, we can create pretty magical DSLs.
-    // Lets try creating DSLs for testing framework
+# Custom DSLs
+Using `infix`, we can create pretty magical DSLs.
+Lets try creating DSLs for testing framework
+```kotlin
+infix fun Any.shouldEqual(other: Any): Unit {
+    if (this != other)
+        throw RuntimeException("$this was not equal to $other")
+}
 
-    fun Any.shouldEqual(other: Any): Unit {
-        if (this != other)
-            throw RuntimeException("$this was not equal to $other")
+// Usage: "foo" shouldEqual "bar"
+listOfNames.contains("george") shouldEqual true
+
+// But this looks sad, it should read more like:
+listOfNames shouldContain "george"
+
+infix fun <E> Collection<E>.shouldContain(element: E): Unit {
+    if (!this.contains(element))
+        throw RuntimeException("Collection did not contain $element")
+}
+// Usage: listOfNames shouldContain 10.0
+```
+How about: listOfNames shouldContain "george" or listOfNames should beEmpty()
+`infix fun Unit.or(other: Unit): Unit`
+would not work because our assertions throw an exception, the left-hand side could have already thrown an exception before or is invoked, meaning we can't catch it. In which case, we need to invoke the assertions after they have been combined.
+At the same time, can we avoid duplicating the repeated left-hand side(listOfNames)?
+
+Lets define a type called Matcher, which can help catch the exception and then apply "or" on it
+```kotlin
+// The interface
+interface Matcher<T> {
+    fun test(lhs: T): Unit
+}
+
+// The implementation for contain and beEmpty
+fun <T> contain(rhs: T) = object : Matcher<Collection<T>> {
+    override fun test(lhs: Collection<T>): Unit {
+        if (!lhs.contains(rhs))
+            throw RuntimeException("Collection did not contain $rhs")
     }
-    // Usage: "foo" shouldEqual "bar"
-
-    /*
-    Usage:
-        listOfNames.contains("george") shouldEqual true
-    But this looks sad, it should read more like:
-        listOfNames shouldContain "george"
-    */
-
-    infix fun <E> Collection<E>.shouldContain(element: E): Unit {
-        if (!this.contains(element))
-            throw RuntimeException("Collection did not contain $element")
+}
+fun <T> beEmpty() = object : Matcher<Collection<T>> {
+    override fun test(lhs: Collection<T>) {
+        if (lhs.isNotEmpty())
+            throw RuntimeException("Collection should be empty")
     }
-    // Usage: listOfNames shouldContain 10.0
+}
 
-    /*
-    How about: listOfNames shouldContain "george" or listOfNames should beEmpty()
-        infix fun Unit.or(other: Unit): Unit
+// define "should" to run the matcher tests
+infix fun <T> T.should(matcher: Matcher<T>) {
+    matcher.test(this)
+}
 
-    would not work because our assertions throw an exception, the left-hand side
-    could have already thrown an exception before or is invoked, meaning we
-    can't catch it. In which case, we need to invoke the assertions after they have
-    been combined.
-    At the same time, can we avoid duplicating the repeated left-hand side(listOfNames)?
-
-    Lets define a type called Matcher, which can help catch the exception and then
-    apply "or" on it
-    */
-
-    // The interface
-    interface Matcher<T> {
-        fun test(lhs: T): Unit
-    }
-
-    // The implementation for contain and beEmpty
-    fun <T> contain(rhs: T) = object : Matcher<Collection<T>> {
-        override fun test(lhs: Collection<T>): Unit {
-            if (!lhs.contains(rhs))
-                throw RuntimeException("Collection did not contain $rhs")
-        }
-    }
-    fun <T> beEmpty() = object : Matcher<Collection<T>> {
-        override fun test(lhs: Collection<T>) {
-            if (lhs.isNotEmpty())
-                throw RuntimeException("Collection should be empty")
-        }
-    }
-
-    // define "should" to run the matcher tests
-    infix fun <T> T.should(matcher: Matcher<T>) {
-        matcher.test(this)
-    }
-
-    // Add "or" to the Matcher interface
-    interface Matcher<T> {
-        fun test(lhs: T): Unit
-        infix fun or(other: Matcher<T>): Matcher<T> = object : Matcher<T> {
-            override fun test(lhs: T) {
-                try {
-                    this@Matcher.test(lhs)
-                } catch (e: RuntimeException) {
-                    other.test(lhs)
-                }
+// Add "or" to the Matcher interface
+interface Matcher<T> {
+    fun test(lhs: T): Unit
+    infix fun or(other: Matcher<T>): Matcher<T> = object : Matcher<T> {
+        override fun test(lhs: T) {
+            try {
+                this@Matcher.test(lhs)
+            } catch (e: RuntimeException) {
+                other.test(lhs)
             }
         }
     }
-
-    // We can use the above to write
-    listOfNames should (contain("george") or beEmpty())
-
-    // Instead of defining an "and", we can also write
-    listOfNames should {
-        contain("george")
-        beEmpty()
-    }
-
-    // Validation and Error Accumulation
-
-    // VERSION 1
-    //Lets start with the base clases:
-    sealed class Validation
-    object Valid: Validation()
-    class Invalid(val errors: List<String>) : Validation<Nothing>() {
-        companion object {
-            operator fun invoke(error: String) = Invalid(listOf(error))
-        }
-    }
-
-    // Note: operator invoke gets call then you call the class e.g. Invalid("Error goes here")
-    // will call the invoke method
-
-    // Implementating validation classes:
-
-    class Student(val name: String, val studentNumber: String, val String)
-
-    fun isValidName(name: String): Validation {
-        return if (name.trim().length > 2)
-            Valid
-        else
-            Invalid("Name $name is too short")
-    }
-    fun isValidStudentNumber(studentNumber: String): Validation {
-        return if (studentNumber.all { Character.isDigit(it) })
-            Valid)
-        else
-        Invalid("Student number must be only digits: $studentNumber")
-    }
-    fun isValidEmailAddress(email: String): Validation {
-        return if (email.contains("@"))
-            Valid
-        else
-            Invalid("Email must contain an '@' symbol")
-    }
-
-    // VERSION 2: Lets implement error accumulation with plus operator
-    sealed class Validation {
-        abstract infix operator fun plus(other: Validation): Validation
-    }
-    class Invalid(val errors: List<String>) : Validation() {
-        companion object {
-            operator fun invoke(error: String) = Invalid(listOf(error))
-        }
-        override fun plus(other: Validation): Validation = when (other) {
-            is Invalid -> Invalid(this.errors + other.errors)
-            is Valid -> this
-        }
-    }
-    object Valid : Validation() {
-        override fun plus(other: Validation): Validation = when (other) {
-            is Invalid -> other
-            is Valid -> this
-        }
-    }
-
-    // Usage:
-    val validation = (
-        isValidName(student.name) +
-        isValidStudentNumber(student.studentNumber) +
-        isValidEmailAddress(student.email)
-    )
-
-
-
-
 }
 
+// We can use the above to write
+listOfNames should (contain("george") or beEmpty())
+
+// Instead of defining an "and", we can also write
+listOfNames should {
+    contain("george")
+    beEmpty()
+}
+```
+
+### Validation and Error Accumulation
+
+_Part 1_
+Lets implement base class
+```kotlin
+sealed class Validation
+
+object Valid: Validation()      // Valid is a singleton
+
+class Invalid(val errors: List<String>) : Validation<Nothing>() {
+    companion object {
+        operator fun invoke(error: String) = Invalid(listOf(error))
+    }
+}
+```
+>Note: operator invoke gets call then you call the class e.g. Invalid("Error goes here") will call the invoke method
+
+Implementating validation classes:
+```kotlin
+class Student(val name: String, val studentNumber: String, val String)
+
+fun isValidName(name: String): Validation {
+    return if (name.trim().length > 2)
+        Valid
+    else
+        Invalid("Name $name is too short")
+}
+fun isValidStudentNumber(studentNumber: String): Validation {
+    return if (studentNumber.all { Character.isDigit(it) })
+        Valid)
+    else
+    Invalid("Student number must be only digits: $studentNumber")
+}
+fun isValidEmailAddress(email: String): Validation {
+    return if (email.contains("@"))
+        Valid
+    else
+        Invalid("Email must contain an '@' symbol")
+}
+```
+_Part 2_
+Lets implement error accumulation with plus operator
+```kotlin
+sealed class Validation {
+    abstract infix operator fun plus(other: Validation): Validation
+}
+class Invalid(val errors: List<String>) : Validation() {
+    companion object {
+        operator fun invoke(error: String) = Invalid(listOf(error))
+    }
+    override fun plus(other: Validation): Validation = when (other) {
+        is Invalid -> Invalid(this.errors + other.errors)
+        is Valid -> this
+    }
+}
+object Valid : Validation() {
+    override fun plus(other: Validation): Validation = when (other) {
+        is Invalid -> other
+        is Valid -> this
+    }
+}
+
+// Usage:
+val validation = (
+    isValidName(student.name) +
+    isValidStudentNumber(student.studentNumber) +
+    isValidEmailAddress(student.email)
+)
+```
