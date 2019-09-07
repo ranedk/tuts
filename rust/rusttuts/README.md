@@ -112,3 +112,85 @@ let a = a * 2;  // shadowing with previous value transformation is good too
 
         let a = [3; 5];                             // equivalent of let a = [3, 3, 3, 3, 3]
         ```
+    - Trying to access out of bound index of an array will result in a runtime error
+
+### Functions
+```rust
+fn somefunction(x: i32, y: i32) -> i32 {
+    // Do something here
+    x + y                   // Note the missing semicolon ";". Acts as a return statement
+}
+
+fn main() {
+    let a = {
+        let z = somefunction(1, 2);
+        z * 2               // Without semicolon, the block returns this to `a`
+    };                      // This semicolon is required
+    println!("a={}", a)
+}
+```
+
+### Control statements
+
+#### Conditionals
+```rust
+// If example
+let x = 10;
+if x > 5 {
+    println!("x={}", x);
+}
+
+
+// if-else-if example
+if x > 5 {
+} else if x > 10 {
+    println!("{}>10", x);
+} else if x > 20 {
+    println!("{}>20", x);
+} else {
+    println!("{} is big", x);
+}
+
+// let-if-else example
+let a = if x > 5 {
+    10
+} else {                // Won't compile without an else (safety)
+    11                  // return type of if and else must also match (safety)
+};
+println!("a={}", a);
+```
+
+#### Loops
+We saw `loop-break-continue` in the first example.
+How to get values from a loop
+```rust
+    let mut counter = 0;
+
+    let result = loop {                 // catch break value in result
+        counter += 1;
+
+        if counter == 10 {
+            break counter * 2;          // break with a value (semicolon comes back with break)
+        }
+    };
+
+    println!("The result is {}", result);
+```
+```rust
+// While loop
+while number != 0 {
+    println!("{}!", number);
+    number -= 1;
+}
+
+// For loop
+let a = [10, 20, 30, 40, 50];
+
+for element in a.iter() {
+    println!("the value is: {}", element);
+}
+
+for number in (1..4).rev() {
+    println!("{}!", number);
+}
+```
