@@ -90,12 +90,12 @@ fn main() {
 NOTE: It doesn't matter if the struct method is defined on `self`, `&self`, `mut self` or `&mut self`. Calling `rect.area()` will do the right thing. However, the parameter passed must be of the right type `rect2.can_hold(&rect3)` CANNOT be written as `rect2.can_hold(rect3)`
 
 **If original variable is defined as mutable `let mut rect = Rectangle {width: 10, height: 20}`. Then for defining methods**
-|||
+| --- | --- |
 |Passing  |  What it means |
-`self`  |  Immutable variable passed with ownership, you lose control to rect(cannot use it again) and function cannot mutate it either
-`&self` |  Immutable reference passed, you retain control to use it again, the function cannot mutate it
-`mut self` | Mutable variable passed with ownership, you lose control to rect, the function can mutate it though
-`&mut self` | Mutable reference passed, you retain control to use it again, the function can mutate it
+|`self`  |  Immutable variable passed with ownership, you lose control to rect(cannot use it again) and function cannot mutate it either |
+|`&self` |  Immutable reference passed, you retain control to use it again, the function cannot mutate it |
+|`mut self` | Mutable variable passed with ownership, you lose control to rect, the function can mutate it though |
+|`&mut self` | Mutable reference passed, you retain control to use it again, the function can mutate it |
 
 ## Static function
 Like `String::from`
