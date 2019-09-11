@@ -154,6 +154,7 @@ fn change(s: &String) -> {
 ```
 
 ### Mutable reference
+Obviously, you cannot have mutable reference to a immutable variable.
 ```rust
 fn main() {
     let mut s = String::from("hello");
@@ -164,7 +165,7 @@ fn change(some_string: &mut String) {           // function specifically wants a
     some_string.push_str(", world");            // owns the reference, so can change it
 }
 ```
-However, to make it safe, you can only have ONE mutable reference at a tim
+However, to make it safe, you can only have ONE mutable reference at a time
 ```rust
 let mut s = String::from("hello");
 
@@ -188,6 +189,72 @@ let r2 = &mut s;
 - If there are immutable references(s), you cannot have a mutable reference _in the same scope_ (to avoid surprise behavior for immutable reference holders, who can have their data change without their knowledge)
 
 *In the same scope* - Scope is not just blocks or functions, but also, when a variable is not used in the code, rust automatically puts it out of scope after the last time it is used. Hence:
+```rust
+let mut s = String::from("hello");
+
+let r1 = &s;        // first immutable reference
+let r2 = &s;        // second immutable reference
+println!("{} and {}", r1, r2);
+// r1 and r2 are no longer used after this point, so not in the scope below this
+
+let r3 = &mut s;    // mutable reference, fine here since immutable ref are out of scope
+println!("{}", r3);
+```
+- A function cannot return a pointer for which the value was created inside the function
+```rust
+fn main() {
+    let reference_to_nothing = dangle();
+}
+
+fn dangle() -> &String {
+    let s = String::from("hello");
+
+    &s                  // ERROR: must return s instead of &s
+                        // scope of s ends after this function, so the reference cannot be returned
+}
+```
+## Slicing (only for ASCII only)
+Much like python
+```rust
+let s = String::from("hello");
+
+let slice = &s[0..2];
+let slice = &s[..2];        // Initial index is 0
 
 
+let len = s.len();
+
+let slice = &s[3..len];
+let slice = &s[3..];        // Final index is end of string
+```
+
+String slice is of type `&str`
+Similar rules of ownership apply on strings and their slices
+
+```rust
+// All other list types also have slices
+let a = [1, 2, 3, 4, 5];
+
+let slice = &a[1..3]        Slice is of type &[i32]
+```
+NOTE: For slicing and general ownership guideline. At any point of time, there should only be one available way to modify a variable.
+
+Consider the following:
+```rust
+    let mut a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    let slice = &mut a[3..7];
+
+    // We have created 2 ways to mutate the list, one via `a` and the other via `slice`
+
+    // Only one of the below lines will be valid now, NOT BOTH (uncomment and check)
+
+    // slice[2] = 100;
+    // a[2] = 200;
+
+    // println! means that the variable is in use and is in scope, depending on the above lines
+    // the following lines will be valid or not. uncomment and check
+
+    //println!("after a={:?}", a);
+    //println!("after slice={:?}", slice);
+```
 
