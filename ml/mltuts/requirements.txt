@@ -1,0 +1,4 @@
+ipython==7.8.0
+pandas==0.25.1
+sklearn==0.0
+spyder==3.3.6
