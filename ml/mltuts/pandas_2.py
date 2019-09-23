@@ -85,5 +85,25 @@ print("non null columns: ", row.notnull())
 
 print("All rows with null in Ages  = ",  df[df['Age'].isnull()])
 
-# Dropping data
+# Dropping the PassengerId column => find passengerId col, drop along axis=1
+passenger_removed = df.drop(['PassengerId', 'Cabin'], axis=1)
+
+# Remove by column index
+3_col_removed = df1.drop(df1.columns[3], axis=1)
+
+# Remove multiple columns by indexes
+368_col_removed = df1.drop(df1.columns[[3,6,8]], axis=1)
+
+# Axis = 1 is columns, Axis = 0 is rows
+# Remove rows with index 0,2,4,6,8
+rows_removed = df.drop([0, 2, 4, 6, 8], axis=0)
+
+# Change index and remove by index
+df1 = df.set_index('Age')
+rows_removed_1 = df1.drop(['60', '40.5', '30.5'], axis=0)
+
+
+
+
+
 
