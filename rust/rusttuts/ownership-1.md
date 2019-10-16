@@ -258,5 +258,4 @@ Consider the following:
     //println!("after slice={:?}", slice);
 ```
 
-NOTE: Rust doesnt let you compare references, it instead ALWAYS compares by value. So `a > b` would work and so would `*a > *b` since both imply the same thing. Its always better to write `a > b`. Its rusty!
-
+NOTE: Rust doesnt let you compare references, it instead ALWAYS compares by value. So `a > b` would work and so would `*a > *b` since both imply the same thing. Its always better to write `a > b`. Its rusty! However, you cannot compare a reference to a value, both have to be values or both have to be references.

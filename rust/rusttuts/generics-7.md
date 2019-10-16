@@ -179,7 +179,7 @@ fn some_function<T, U>(t: T, u: U) -> i32
 {
 
 ```
-Returning functions
+Returning a trait
 ```rust
 fn returns_summarizable() -> impl Summary {
     Tweet {
@@ -233,5 +233,96 @@ fn largest<T: PartialOrd>(list: &[T]) -> &T {   // takes and return references
     }
 
     largest
+}
+```
+
+### Polumorphism with traits and structs
+```rust
+use std::fmt::Display;
+
+struct Pair<T> {
+    x: T,
+    y: T,
+}
+
+impl<T> Pair<T> {
+    fn new(x: T, y: T) -> Self {    // new is implemented for ALL types of Pair
+        Self {
+            x,
+            y,
+        }
+    }
+}
+
+impl<T: Display + PartialOrd> Pair<T> {     // cmp_display is implemented for only those Pairs which
+    fn cmp_display(&self) {                 // implement Display and PartialOrd trait
+        if self.x >= self.y {
+            println!("The largest member is x = {}", self.x);
+        } else {
+            println!("The largest member is y = {}", self.y);
+        }
+    }
+}
+```
+
+# Lifetimes - the crazy one
+- Once the usage of the variable is no more, its no more in scope
+- If it had a reference before, it should also be out of scope
+
+Consider the following code:
+```rust
+fn longest(x: &str, y: &str) -> &str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+
+fn main() {
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result = longest(string1.as_str(), string2);    // after this, string1 and string2 will be out of scope
+    println!("The longest string is {}", result);       // result is reference to either string1 or string2
+                                                        // so we don't know during compile time if result's lifetime
+                                                        // should be equal to string1 or string2
+
+                                                        // If the function longest was taking a single reference parameter
+                                                        // rust would automatically figure out that result and input reference
+                                                        // should have the same lifetime. In 2 parameters, its not certain
+}
+
+```
+This doesn't compile and gives a lifetime error
+Fix, `lifetime`
+The syntax looks weird, but it requires a `'` followed by lifetime tag variable
+```rust
+fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {     // This means, the output of the function will have the same lifetime
+    if x.len() > y.len() {                              // as the minimum of the lifetimes of x or y
+        x
+    } else {
+        y
+    }
+}
+
+fn give_first<'a>(x: &'a str, y: &str) -> &'a str {     // This means, the output of the function will have the same lifetime
+    x                                                   // as x
+}
+```
+
+## Lifetimes in Structs
+If a struct take a reference, we need to define how its lifetime would be dependent on the lifetime of the value for this the reference belong to
+```rust
+struct ImportantExcerpt<'a> {
+    part: &'a str,              // part will have lifetime, as long a value for which its a reference
+}
+
+fn main() {
+    let novel = String::from("Call me Ishmael. Some years ago...");
+    let first_sentence = novel.split('.')
+        .next()
+        .expect("Could not find a '.'");
+    let i = ImportantExcerpt { part: first_sentence };  //  i and i.part will have same lifetime as first_sentence
 }
 ```
