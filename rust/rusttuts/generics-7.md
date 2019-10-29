@@ -236,7 +236,7 @@ fn largest<T: PartialOrd>(list: &[T]) -> &T {   // takes and return references
 }
 ```
 
-### Polumorphism with traits and structs
+### Polymorphism with traits and structs
 ```rust
 use std::fmt::Display;
 
