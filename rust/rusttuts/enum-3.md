@@ -92,7 +92,7 @@ fn value_in_cents(coin: Coin) -> u8 {
         },
         Coin::Nickel => 5,
         Coin::Dime => 10,
-        Coin::Quarter(state => {
+        Coin::Quarter(state) => {
             println!("For state {:?}", state);
             25
         },
@@ -144,10 +144,24 @@ match some_u8_value {
 
 If the match only has one thing to match and ignore everything else
 ```rust
-if let Some(3) = some_u8_value {
-    println!("three");
+value = Some(7);
+
+if let Some(v) = value {
+    println!("value is {}", v);
 }
 ```
+Read this as: if Some(v) matches value, then ...
+This is tricky to understand, and easy to get it wrong (without getting compilation error!!)
+E.g.
+```rust
+    let value: Option<u32> = Some(10);
+    let some_other_value = 100;
+
+    if let some_other_value = value {
+        println!("value");
+    }
+```
+This will always print "value". Because this starts a new scope with `some_other_value` getting its value from `value` variable.
 
 ```rust
 let mut count = 0;
