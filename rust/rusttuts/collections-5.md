@@ -23,8 +23,6 @@ let ninth = v[9];               // runtime error, out of bounds
 
 
 let n = &v[1];                  // Immutable borrow, n has borrowed some part of v
-v.push(4);                      // Compiler error: already borrowed in the above line
-                                // any part of v, once borrowed, makes v completely borrowed
 ```
 
 ### Scenario 1
@@ -48,7 +46,7 @@ v.push(10);                     // Valid, since v is mutable and reference was p
 ### Scenario 3
 ```rust
 let mut v = vec![100, 32, 57, 34, 76, 43, 34, 65, 23];
-for i in v {                   // This is like ownership to the for loop
+for i in v {                   // This is like ownership to the for loop, v is moved
     println!("{}", i);
 }
 v.push(10);                     // Invalid, since ownership is not here anymore
@@ -125,7 +123,11 @@ let row = vec![
 
 # String & Slices
 
-Note: String `&String` get coerced to Slice `&str` by the compiler.
+- `str` is immutable, stored in stack
+- `String` is stored in heap and is mutable.
+- you never interact with `str`, you will always get `&str` to code with
+- `&String` get coerced to Slice `&str` by the compiler
+- `String` and `str` are not coerced and are different types
 
 ```rust
 let mut s = String::from("foo");    // equivalent to let mut s = "foo".to_string()

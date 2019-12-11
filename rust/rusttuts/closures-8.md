@@ -20,7 +20,7 @@ println!("{}", doubler(10.0));      // output: Compiler time error
 fn  add_one_v1   (x: u32) -> u32 { x + 1 }
 let add_one_v2 = |x: u32| -> u32 { x + 1 };
 let add_one_v3 = |x|             { x + 1 };
-let add_one_v4 = |x|
+let add_one_v3 = |x|             x + 1 ;
 ```
 
 Lets implement a `struct` which caches a closure output on a cool way:
