@@ -326,3 +326,21 @@ fn main() {
     let i = ImportantExcerpt { part: first_sentence };  //  i and i.part will have same lifetime as first_sentence
 }
 ```
+
+### Static lifetimes
+You can use `'static` to mark variable as having a static lifetime:
+```rust
+impl Config {
+    //&'static str is the type of string literals, which is our error message type for now
+    fn new(args: &[String]) -> Result<Config, &'static str> {
+        if args.len() < 3 {
+            return Err("not enough arguments");
+        }
+
+        let query = args[1].clone();
+        let filename = args[2].clone();
+
+        Ok(Config { query, filename })
+    }
+}
+```

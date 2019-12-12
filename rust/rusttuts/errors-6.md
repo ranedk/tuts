@@ -113,9 +113,24 @@ fn read_username_from_file() -> Result<String, io::Error> {
 }
 ```
 
-#### Particularly for reading a file, you don't have to do the above. you can simply
-``` rust
-fs::read_to_string("hello.txt")
+> Note: The `?` stuff works only if methods don't panic, but return `Result<T, E>`
+
+Interesting, consider the following snippet:
+```rust
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),                       // this returns, then match returns
+    }
 ```
+The shortcut to this is:
+```rust
+if let Err(e) = f.read_to_string(&mut s) {
+    println!("Application error: {}", e);
+}
+```
+
+#### Particularly for reading a file, you don't have to do the above. you can simply
+```rust
+fs::read_to_string("hello.txt")
 ```
 

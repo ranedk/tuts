@@ -17,12 +17,37 @@ mod tests {
     }
 }
 ```
+## Basic assert macros
+
+- `assert!`
+- `assert_eq!`
+- `assert_ne!`
+
+## Check Panic
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    #[should_panic]
+    fn greater_than_100() {         // This should panic
+        Guess::new(200);
+    }
+
+    #[test]
+    #[should_panic(expected = "This value must be greater than 200")]
+    fn greater_than_200() {         // This should panic with the expected message
+        Guess::new(400);
+    }
+}
+```
 
 Anything annotated with test will be run when you run `cargo test`
 
 More options will `cargo test` available on the cargo test [documentation page](https://doc.rust-lang.org/1.30.0/book/second-edition/ch11-02-running-tests.html)
 
-Write tests inside a test directory and import library directly inside it.
+Write integration tests inside a test directory and import library directly inside it.
 
 ```rust
 // inside tests/integration_test.rs
