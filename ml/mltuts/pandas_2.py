@@ -55,9 +55,6 @@ print(df[(df['Age'] > 43) & (df['Sex'] == 'male')])
 # Add a new column based on old columns
 df['Class Type'] = df['Pclass'].replace(1, 'First').replace(2, 'Second').replace(3, 'Third')
 
-df['demography'] = df[]
-
-
 # Rename columns
 df = df.rename(columns={'Sex': 'Gender'})
 
@@ -89,10 +86,10 @@ print("All rows with null in Ages  = ",  df[df['Age'].isnull()])
 passenger_removed = df.drop(['PassengerId', 'Cabin'], axis=1)
 
 # Remove by column index
-3_col_removed = df1.drop(df1.columns[3], axis=1)
+_3_col_removed = df1.drop(df1.columns[3], axis=1)
 
 # Remove multiple columns by indexes
-368_col_removed = df1.drop(df1.columns[[3,6,8]], axis=1)
+_368_col_removed = df1.drop(df1.columns[[3,6,8]], axis=1)
 
 # Axis = 1 is columns, Axis = 0 is rows
 # Remove rows with index 0,2,4,6,8
@@ -102,8 +99,26 @@ rows_removed = df.drop([0, 2, 4, 6, 8], axis=0)
 df1 = df.set_index('Age')
 rows_removed_1 = df1.drop(['60', '40.5', '30.5'], axis=0)
 
+# drop all males
+females_only = df.drop(df[df['Gender'] == 'male'].index, axis=0)
+
+# Identify duplicates
+# Find data where age < 20 and age,gender,Pclass,Fare are duplicated
+# keep={'first', 'last', False}
+#    - first marks the first occurence as True (so only True ones are shown, only first ones are taken)
+#    - last marks the last as True
+#    - False marks all occurences as True (hence shows all duplicated)
+duplicate_ages = df[(df['Age'] < 20) & (df.duplicated(['Age', 'Gender', 'Pclass', 'Fare'], keep=False))][['Name', 'Age', 'Gender', 'Pclass', 'Fare']].sort_values(by=['Age'])
+# also supports inplace as a parameter, which mutated the df itself
 
 
+# Group By
 
+# Group by Sex and find mean of ALL number columns
+mean_by_sex = df.groupby('Sex').mean()
 
+mean_by_sex_of_age = df.groupby('Sex')['Age'].mean()
+print("Male mean age = ", mean_by_sex_of_age['male'])
 
+mean_by_sex_survived_of_age = df.groupby(['Sex', 'Survived'])['Age'].mean()
+print("Survived Male mean age = ", mean_by_sex_of_age['male'][0])

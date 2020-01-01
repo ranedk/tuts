@@ -30,7 +30,7 @@ df0 = df0.append(
     ignore_index=True
 )
 # add a department column to dataframe, makes it NaN for previous entries
-    
+
 print(df0)
 
 # To understand nuisances for ignore_index check the link
