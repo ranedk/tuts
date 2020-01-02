@@ -62,4 +62,7 @@ pd.merge(students, chemistry, on="roll", how="outer")
 #9   103       NaN   NaN    NaN     87
 
 # If the columns names are differet, use left_on and right_on
-students.merge(maths, left_on="roll", right_on="sr", how='left')
+# pd.merge(students, maths, left_on="roll", right_on="sr", how='left')
+# This will give an error since 'roll' and 'sr' are in index and not in columns.
+# Instead use
+pd.merge(students, maths, left_index=True, right_index=True, how='left')
