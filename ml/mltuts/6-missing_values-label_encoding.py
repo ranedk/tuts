@@ -70,7 +70,7 @@ df.mode()
 df[cols] = df[cols].fillna(df.mode().iloc[0])
 
 
-
+# -------------------------------------------------------------------
 # Label encoding: Making enums from text categorical items
 # Requires no NaN in the data
 
@@ -99,3 +99,6 @@ pd.DataFrame(features)
 #1   5   42  0  0  1  2  48000
 #2   2   29  1  0  0  2  54000
 #3   5   38  1  0  0  0  61000
+
+# Label encoder will make text-categories into enums, this if treated as numbers
+# will lead to data weightage issues. So, we need to use another technique
