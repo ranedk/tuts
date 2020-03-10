@@ -31,9 +31,34 @@ df['Salary_cubert'].hist(bins=20)
 
 from sklearn.covariance import EllipticEnvelope
 
-x = np.array([
-    []
+X = np.array([
+    [100, 100],
+    [1, 1],
+    [2, 4],
+    [4, 5],
+    [6, 4],
+    [8, 4],
+    [6, 2],
+    [4, 8],
+    [3, 5],
+    [7, 2]
 ])
 
-outlier = EllipticEnvelope(contamination=0.1)
-outlier.fix(df['Salary'])
+outlier = EllipticEnvelope(contamination=0.1).fit(X)
+prediction1 = outlier.predict(X)
+# prediction: array([-1,  1,  1,  1,  1,  1,  1,  1,  1,  1])
+# 100, 100 doesn't fit in the eliptical
+
+# Applying it on dataset
+# Lets try to find out if age x salary for someone is an outlier
+# Means that someone is getting paid a lot MORE for his age
+# Doesn't capture outliers which are below a threshold
+
+features = df.iloc[:, [1, 2]].values
+outlier = EllipticEnvelope(contamination=0.1).fit(features)
+prediction2 = outlier.predict(features)
+
+df['outliers'] = prediction2
+
+# People who are outliers
+df[df['outliers'] == -1]
