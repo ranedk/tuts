@@ -69,8 +69,34 @@ fn main() {
     assert!(equal_to_x(y));
 }
 ```
-Closures can borrow in 3 ways using traits:
 
-- FnOnce (self) are functions that can be called once,
-- FnMut (&mut self) are functions that can be called if they have &mut access to their environment
-- Fn (&self) are functions that can still be called if they only have & access to their environment.
+Closures borrow local variables mutably or immutably by default depending on the use case:
+```rust
+let mut l = vec![1,2,3,4];
+let mut doubler = || {          // immutable borrow happens here
+    println!("{:?}", l)         // equivalent of '&l'
+}
+```
+
+```rust
+let mut l = vec![1,2,3,4];
+let mut doubler = || {          // mutable borrow happens here
+    l[0] = l[0] * 2;            // equivalent of '& mut l'
+}
+```
+Hence, Closures borrow in 3 ways using:
+
+- Fn: the closure captures by reference (&T)
+- FnMut: the closure captures by mutable reference (&mut T)
+- FnOnce: the closure captures by value (T)
+
+This is more of a guideline and rust will find the least restrictive way to borrow.
+
+To define generic closures, the traits Fn, FnMut and FnOnce are used as follows:
+```rust
+// A function which takes a closure as an argument and calls it.
+// <F> denotes that F is a "Generic type parameter"
+fn apply<F>(f: F) where F: FnOnce() {
+    f();
+}
+```

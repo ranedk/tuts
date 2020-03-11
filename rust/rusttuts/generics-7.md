@@ -382,3 +382,73 @@ fn main() {
 }
 
 ```
+
+## Associated types
+Traits defined over generics (cool feature++)
+
+If a trait is defined over generic, the implementation will have to be defined with proper types:
+```rust
+// Trait defined with generics
+trait Contains<A, B> {
+    fn contains(&self, _: &A, _: &B) -> bool; // Explicitly requires `A` and `B`.
+    fn first(&self) -> i32; // Doesn't explicitly require `A` or `B`.
+    fn last(&self) -> i32;  // Doesn't explicitly require `A` or `B`.
+}
+// Struct defined with types
+struct Container(i32, i32);
+
+// To implement struct with contains trait
+impl Contains<i32, i32> for Container {
+
+    fn contains(&self, number_1: &i32, number_2: &i32) -> bool {
+        (&self.0 == number_1) && (&self.1 == number_2)
+    }
+
+    // Grab the first number.
+    fn first(&self) -> i32 { self.0 }
+
+    // Grab the last number.
+    fn last(&self) -> i32 { self.1 }
+}
+
+fn difference<A, B, C>(container: C) -> i32 where C: Contains<A, B> {
+    container.last() - container.first()
+}
+```
+
+Associated Types make types defined in trait:
+```rust
+struct Container(i32, i32);
+
+trait Contains {
+    // Define generic types here which methods will be able to utilize.
+    type A;
+    type B;
+
+    fn contains(&self, _: &Self::A, _: &Self::B) -> bool;
+    fn first(&self) -> i32;
+    fn last(&self) -> i32;
+}
+
+impl Contains for Container {
+    // Specify what types `A` and `B` are. If the `input` type
+    // is `Container(i32, i32)`, the `output` types are determined
+    // as `i32` and `i32`.
+    type A = i32;
+    type B = i32;
+
+    // `&Self::A` and `&Self::B` are also valid here.
+    fn contains(&self, number_1: &i32, number_2: &i32) -> bool {
+        (&self.0 == number_1) && (&self.1 == number_2)
+    }
+    // Grab the first number.
+    fn first(&self) -> i32 { self.0 }
+
+    // Grab the last number.
+    fn last(&self) -> i32 { self.1 }
+}
+
+fn difference<C: Contains>(container: &C) -> i32 {
+    container.last() - container.first()
+}
+```
