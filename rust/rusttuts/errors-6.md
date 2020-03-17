@@ -252,3 +252,36 @@ assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 3);
 let x : Result<&str, _> = Err("bar");
 assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 42);
 ```
+
+## Errors in a loop
+If you get errors while looping a iterable and doing a map operation, rust gives you cool ways to manage the output values:
+
+```rust
+let strings = vec!["tofu", "93", "18"];
+let numbers: Result<Vec<_>, _> = strings
+    .into_iter()
+    .map(|s| s.parse::<i32>())
+    .collect();                    // panics since "tofu" cannot be parsed
+println!("Results: {:?}", numbers);
+```
+
+```rust
+let strings = vec!["tofu", "93", "18"];
+let numbers: Vec<_> = strings
+    .into_iter()
+    .map(|s| s.parse::<i32>())
+    .filter_map(Result::ok)     // Filter with only Ok values, then collect
+    .collect();
+println!("Results: {:?}", numbers);
+```
+
+```rust
+let strings = vec!["tofu", "93", "18"];
+let (numbers, errors): (Vec<_>, Vec<_>) = strings
+    .into_iter()
+    .map(|s| s.parse::<i32>())
+    .partition(Result::is_ok);  // Collects while separating Ok and Err into
+                                // two vector tuples
+println!("Numbers: {:?}", numbers);
+println!("Errors: {:?}", errors);
+```

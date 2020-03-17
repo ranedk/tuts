@@ -268,3 +268,71 @@ for word in text.split_whitespace() {
 
 println!("{:?}", map);
 ```
+
+# Box types
+
+- If stack allocated types (e.g. primitive types) are to be allocated in heap, with a pointer to them, then use Box types:
+```rust
+#[derive(Debug)]
+struct Point {
+    x: f64,
+    y: f64,
+}
+
+fn origin() -> Point {
+    Point { x: 0.0, y: 0.0 }
+}
+
+fn boxed_origin() -> Box<Point> {
+    // Allocate this point on the heap, and return a pointer to it
+    Box::new(Point { x: 0.0, y: 0.0 })
+}
+
+// -------
+
+// Without a box
+let point: Point = origin();   // Stack allocated, since space is known to the compiler
+
+// Box point
+let boxed_point: Box<Point> = Box::new(origin());
+
+// Box in a box
+let box_in_a_box: Box<Box<Point>> = Box::new(boxed_origin());
+
+// Unbox from a box
+let unboxed_point: Point = *boxed_point;
+```
+Boxed instance can call class methods of the boxed class.
+
+## Use cases for Box<T>
+
+1) To create a recursive type, the rust compiler believes they are of infinite size. So use a boxed type as:
+```rust
+struct Node<T> {
+    val: T,
+    ptr: Option<Box<Node<T>>>
+}
+```
+
+2) When you are returning a `Trait` (interface! remember), from a function, you cannot just say `fn func() -> MyTrait` or `fn func() -> &MyTrait`. It doesn't make sense in rust, you have to say either of the following:
+    ```rust
+    fn get_figure(a: i32, b: i32) -> impl TwoDimension {
+        // ...
+    }
+    ```
+    This is called a static dispatch. Meaning that rust compiler finds all the types for which the above have been called and generates the functions with all those types during compile time.
+
+    Also, you cannot return 2 different concrete types from the functions. All return types of the functions MUST be of the same type (because its compile time and compiler must be sure).
+    `impl TwoDimension` checks for concrete type implementing the trait
+
+    ```rust
+    fn get_point(a: i32, b: i32) -> Box(dyn TwoDimension) {
+        // ...
+    }
+    ```
+    The above is called dynamic dispatche, meaning that rust will not do anything in compile time and resolve everything in runtime. Also, you can return different types of concrete types implementing the same trait.
+    `dyn TwoDimension` checks for dynamic type implementing the trait
+
+    Dynamic dispatch is slower than Static dispatch (don't care so much about this yet)
+
+3) For performance if T is large and is being moved around a lot, using a Box<T> instead will avoid doing big `memcpys` (memory copy)
