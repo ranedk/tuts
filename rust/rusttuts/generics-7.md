@@ -192,6 +192,27 @@ fn returns_summarizable() -> impl Summary {
 ```
 NOTE: When a function returns a `trait`, its return must be ONE concrete type. That is, the function `returns_summarizable`, cannot return a object type `Tweet` sometimes or a `NewsArticle` sometimes. It must return only one concrete type consistently.
 
+To get a function to return different types (derived from the same implementation), use the box type:
+```rust
+fn summarizable (tweet: bool) -> Box<dyn Summary> {
+    if tweet {
+        Box::new(Tweet {
+            username: "ranedk".to_string(),
+            content: "Here goes by tweet, twat".to_string()
+        })
+    } else {
+        Box::new(Blog{
+            writer: "ranedk123".to_string(),
+            article: "Here goes da blog...".to_string()
+        })
+    }
+}
+
+// Usage:
+let t = summarizable(true);
+println!("{}", t.summarize());
+```
+
 ## Complications that arise
 Largest function
 ```rust
@@ -452,3 +473,42 @@ fn difference<C: Contains>(container: &C) -> i32 {
     container.last() - container.first()
 }
 ```
+
+## SuperTraits (sort of trait Inheritance)
+```rust
+trait Person {
+    fn name(&self) -> String;
+}
+
+// Student is a supertrait of Person.
+// Implementing Student requires you to also impl Person.
+trait Student: Person {
+    fn university(&self) -> String;
+}
+
+trait Programmer {
+    fn fav_language(&self) -> String;
+}
+
+// CompSciStudent (computer science student) is a supertrait of both Programmer
+// and Student. Implementing CompSciStudent requires you to impl both subtraits.
+trait CompSciStudent: Programmer + Student {
+    fn git_username(&self) -> String;
+}
+
+fn comp_sci_student_greeting(student: &dyn CompSciStudent) -> String {
+    format!(
+        "My name is {} and I attend {}. My Git username is {}",
+        student.name(),
+        student.university(),
+        student.git_username()
+    )
+}
+
+fn main() {}
+```
+
+If you derive from 2 traits, both implementing the same method, then to disambiguate, use:
+
+`let username = <Form as UsernameWidget>::get(&form);`
+

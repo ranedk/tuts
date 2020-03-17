@@ -73,6 +73,36 @@ let f = File::open("hello.txt").unwrap();
 // manage exceptions on error
 let f = File::open("hello.txt").expect("Failed to open hello.txt");
 ```
+Other shortcuts:
+
+- `unwrap`:
+    - Unwraps a result, yielding the content of an `Ok`.
+    - Panics if the value is an `Err`, with a panic message provided by the `Err`'s value.
+
+- `expect`:
+    - Unwraps a result, yielding the content of an `Ok`.
+    - Panics if the value is an `Err`, with a panic message including the passed message, and the content of the `Err`.
+
+- `unwrap_err`:
+    - Unwraps a result, yielding the content of an `Err`.
+    - Panics if the value is an `Ok`, with a custom panic message provided by the `Ok`'s value.
+
+- `expect_err`:
+    - Unwraps a result, yielding the content of an `Err`.
+    - Panics if the value is an `Ok`, with a panic message including the passed message, and the content of the `Ok`.
+
+- `unwrap_or_default`:
+    - Returns the contained value or a default. Consumes the self argument then, if Ok, returns the contained value, otherwise if Err, returns the default value for that type.
+    - Code:
+    ```rust
+        let good_year_from_input = "1909";
+        let bad_year_from_input = "190blarg";
+        let good_year = good_year_from_input.parse().unwrap_or_default();
+        let bad_year = bad_year_from_input.parse().unwrap_or_default();
+
+        assert_eq!(1909, good_year);
+        assert_eq!(0, bad_year);
+    ```
 
 ### Raise error inside a function
 ```rust
@@ -134,3 +164,91 @@ if let Err(e) = f.read_to_string(&mut s) {
 fs::read_to_string("hello.txt")
 ```
 
+## How to make a function return Result, None and Error
+
+This is pretty cool
+```rust
+use std::num::ParseIntError;
+
+fn double_first(vec: &Vec<&str>) -> Result<Option<i32>, ParseIntError> {
+    let opt = vec.first().map(|first| {
+        first.parse::<i32>().map(|n| 2 * n)
+    });
+
+    opt.map_or(Ok(None), |r| r.map(Some))
+}
+
+
+fn print_result(res: Result<Option<i32>, ParseIntError>) {
+    match res {
+        Ok(o) => {
+            match o {
+                Some(r) => { println!("Result is {:?}", r) }
+                None => { println!("No result") }
+            }
+        }
+        Err(e) => {
+            println!("Error happened {:?}", e);
+        }
+    }
+}
+
+
+fn main() {
+    let numbers = vec!["42", "93", "18"];
+    let empty = vec![];
+    let strings = vec!["tofu", "93", "18"];
+
+    println!("Result of the operations is: {:?}", double_first(&numbers));
+
+    print_result(double_first(&numbers));
+    print_result(double_first(&empty));
+    print_result(double_first(&strings));
+}
+```
+Interesting utility functions on `Result` instances:
+
+- `map`: Maps a `Result<T, E>` to `Result<U, E>` by applying a function to a contained `Ok` value, leaving an `Err` value untouched
+```rust
+let line = "1\n2\n3\n4\n";
+
+for num in line.lines() {
+    match num.parse::<i32>().map(|i| i * 2) {
+        Ok(n) => println!("{}", n),
+        Err(..) => {}
+    }
+}
+```
+
+- `map_or`: Applies a function to the contained value (if any), or returns the provided default (if not)
+```rust
+let result_is_ok: Result<_, &str> = Ok("foo");
+assert_eq!(result_is_ok.map_or(42, |v| v.len()), 3);
+// If result_is_ok has contained value (foo), apply lambda |v| v.len()
+
+let result_is_err: Result<&str, _> = Err("bar");
+assert_eq!(result_is_err.map_or(42, |v| v.len()), 42);
+// If result_is_err has contained value, apply lambda |v| v.len(), else give 42
+```
+
+- `map_err`: Maps a `Result<T, E>` to `Result<T, F>` by applying a function to a contained `Err` value, leaving an `Ok` value untouched
+```rust
+fn stringify(x: u32) -> String { format!("error code: {}", x) }
+
+let x: Result<u32, u32> = Ok(2);
+assert_eq!(x.map_err(stringify), Ok(2));
+
+let x: Result<u32, u32> = Err(13);
+assert_eq!(x.map_err(stringify), Err("error code: 13".to_string()));
+```
+
+- `map_or_else`: Maps a `Result<T, E>` to `U` by applying a function to a contained `Ok` value, or a fallback function to a contained `Err` value.
+```rust
+let k = 21;
+
+let x : Result<_, &str> = Ok("foo");
+assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 3);
+
+let x : Result<&str, _> = Err("bar");
+assert_eq!(x.map_or_else(|e| k * 2, |v| v.len()), 42);
+```
