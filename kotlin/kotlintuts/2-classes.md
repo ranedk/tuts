@@ -44,8 +44,11 @@ class PersonWithoutMembers constructor(firstName: String, age: Int?) {
 }
 ```
 The above class Person, has a primary constructor.
+
 `class PersonTypeOne constructor(var firstName: String, val age: Int?) {`
+
 You can omit the constructor keyword (if there are no modifiers (discussed later))
+
 `class PersonTypeOne(var firstName: String, val age: Int?) {`
 
 If you want firstName and age to be class Members then, use `var` and `val` keywords in the constructor:
@@ -104,6 +107,12 @@ class DerivedContainer : Container() {
     // Can be accessed by DerivedContainer instance
     public override val fieldA: String = "Something else"
 }
+
+val c = Conatiner()
+// c.fieldA       ERROR: cannot be accessed
+
+val d = DerivedContainer()
+// d.fieldA       Valid
 ```
 ## Nested Class: Class inside a class
 ```kotlin
@@ -166,20 +175,22 @@ var c2 = CustomerWithDefaults(name="Rane")
 println("Customer with defaults ${c2.toString()}")
 // prints > Customer with defaults CustomerWithDefaults(id=0, name=Rane, address=)
 ```
-Data classes
-    - Auto-generate equals, hashCode and toString methods (unless base class has it or they are explicitly defined class body)
-    - Cannot be open (cannot be extended), abstract, sealed or inner
-    - Must have either one `var` or `val` in their primary constructor
-    - Copy
-        ```kotlin
-        val jack = User(name = "Jack", age = 1)
-        val olderJack = jack.copy(age = 2)
-        ```
-    - De-structuring
-        ```kotlin
-        val jane = User("Jane", 35)
-        val (name, age) = jane
-        ```
+**Data classes**
+- Auto-generate equals, hashCode and toString methods (unless base class has it or they are explicitly defined class body)
+- Cannot be open (cannot be extended), abstract, sealed or inner
+- Must have either one `var` or `val` in their primary constructor
+- Copy
+    ```kotlin
+    val jack = User(name = "Jack", age = 1)
+    val olderJack = jack.copy(age = 2)
+    ```
+- De-structuring
+    ```kotlin
+    val jane = User("Jane", 35)
+    val (name, age) = jane
+
+> Note: Data classes cannot be extended. This limitation makes it useful only for certain cases. Its a data container and we must not use it to replace all types of classes.
+
 # Enum classes
 ```kotlin
 enum class Day {
@@ -218,7 +229,7 @@ public enum class Word : Printable {
     }
 }
 
-val w= Word.HELLO
+val w = Word.HELLO
 w.print()
 ```
 ## Static methods
@@ -327,8 +338,7 @@ class ChequePayment(num1:Int, num2:Int) : Payment(num1) {
 ```
 >Note: unless "open" keyword is used, class cannot be extended (that is sealed)
 
->Note: A class can extend ANY number of interfaces but only ONE class (in any order)
- `class TextDocument(title: String) : IPersistable, Document(title), IPrintable {`
+>Note: A class can extend ANY number of interfaces but only ONE class (in any order) `class TextDocument(title: String) : IPersistable, Document(title), IPrintable {`
 
 ## Abstract classes
  ```kotlin
@@ -438,8 +448,8 @@ Understand a few core programming concepts:
 - Inheritance Vs Composition
 
 # Class Delegation ("by" keyword)
-Mostly, composition is preferred over composition. What a delegation does is that it allows
-a class to delegate some of its methods to an object its composed of. E.g.
+Mostly, composition is preferred over inheritance. What a delegation does is that it allows
+a class to delegate some of its methods to an object its composed of.
 ```kotlin
 interface UIElement {
     fun getHeight(): Int
@@ -458,6 +468,7 @@ val panel = Panel(Rectangle(10, 100, 30, 100))
 println("Panel height: ${panel.getHeight()}")        // this calls panel.rectangle.getHeight()
 println("Panel witdh: ${panel.getWidth()}")          // this calls panel.rectangle.getHeight()
 ```
+Only interfaces are delegated.
 
 ### Overriding methods
 ```kotlin
@@ -471,10 +482,6 @@ class DerivedK() : BaseK() {
 class DerivedFK() : BaseK() {
     final override fun v() {}
 }
-
-fun main(args: Array<String>) {
-    Day.valueOf("WEDNESDAY").
-}
 ```
 # How the control flows in the class constructors:
 
@@ -483,7 +490,7 @@ Followed by constructors themselves.
 
 Consider a "Parent" class and a inherited class "Child"
 ```kotlin
-// explicitly open needs to be written for Parent to be extendable
+// Dont forget to mark it open
 open class Parent {
     private val a = println("Parent.a")
 
@@ -521,18 +528,18 @@ class Child : Parent {
 }
 ```
 if we construct an instance of Child by calling its secondary constructor with Child(1)
-Following is how the code flows during construction
+Following is how the code flows during construction:
 
-Child secondary constructor default argument
-Child primary constructor default argument
-Parent primary constructor default argument
-Parent.a
-Parent.init
-Parent.b
-Parent primary constructor
-Child.a
-Child.init 1
-Child.b
-Child.init 2
-Child primary constructor
-Child secondary constructor
+1) Child secondary constructor default argument
+2) Child primary constructor default argument
+3) Parent primary constructor default argument
+4) Parent.a
+5) Parent.init
+6) Parent.b
+7) Parent primary constructor
+8) Child.a
+9) Child.init 1
+10) Child.b
+11) Child.init 2
+12) Child primary constructor
+13) Child secondary constructor

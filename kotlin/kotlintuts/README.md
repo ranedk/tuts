@@ -23,6 +23,14 @@ fun main(args: Array<String>) {
     println("Lets get started with Kotlin!")
 }
 ```
+Since args is not being used, this can be written without it too!
+```kotlin
+package learn.kotlin
+
+fun main() {
+    println("Lets get started with Kotlin!")
+}
+```
 To compile and execute code:
 ```bash
 $ kotlinc hello.kt -include-runtime  -d hello.jar
@@ -82,7 +90,7 @@ val bytes = 0b11010010_01101001_10010100_10010010   // Inferred type: Int (from 
 
 /*
 Boxed numbers (Nullable reference)
-Number will be in stored as primitive types in JVM
+Number will be stored as primitive types in JVM
 However, to manage nullable numbers better (the dreaded NullPointerException),
 Kotiln provides nullable number reference which is "Boxed" inside an object
 */
@@ -119,18 +127,17 @@ toLong()
 
 ## Type System
 
+tldr; `Any` is the super class of everything, `Unit` is equivalent of `void`, `Nothing` is the sub class of everything.
+
 The objective of type system in Kotlin is to save us from getting NullPointerExceptions
 So, the type system is designed to manage Nullable and non-Nullable things properly
 
-All classes have a super class `Any`. Its the base class if not mentioned.
+All classes have a super class `Any`. Its the super class (base class) for every class.
 
-`Unit` type is like void in Java
-If a function returns "no value" it returns `Unit`
-`Unit` is proper type with a "singleton instance" also referred to as Unit or ()
-
-This is for consistency, so all functions have something to return
-- if they return nothing then they are returning Unit)
-- there is always some argument that they will take (if nothing, then its Unit)
+- `Unit` type is like void in Java
+- If a function returns "no value" it returns `Unit`
+- `Unit` is proper type with a "singleton instance" also referred to as Unit or ()
+- Function which return `Unit` mutate objects and have side effects.
 
 e.g. Unit can be mentioned explicitly as
 ```kotlin
@@ -142,7 +149,7 @@ e.g. Unit can be mentioned explicitly as
 Kotlin also has `Nothing`, the *sub class* of all types (It means a value that never exists)
 
 *What does it mean?*
-A function which goes into a loop or throws an exception, essentially returns Nothing (if it returns nothing, it returns Unit, but if it always throws an exception or goes into a loop, then it returns Nothing
+A function which goes into a loop or throws an exception, essentially returns Nothing (if it returns no value, it returns Unit, but if it always throws an exception or goes into a loop, then it returns `Nothing`
 ```kotlin
 fun fail() {
     throw RuntimeException("Something went wrong")
@@ -152,11 +159,14 @@ val data = intent.getStringExtra("key") ?: fail()
 textView.text = data
 ```
 if `fail()` returns nothing, then data becomes `Unit` and it will throw error when you try assigning textView.text to data, since it expects a `CharSequence`
+
 if `fail()` returns `Nothing`, then data becomes a subtype of `String` called `Nothing` and it works without throwing a NullPointerException
 So the return type of fail() should be `Nothing`
 
->Note: If you want to create a immutable list of empty Strings e.g.return someInputArray?.filterNotNull() ?: emptyArray()
+>**Note** If you want to create a immutable list of empty Strings e.g.return someInputArray?.filterNotNull() ?: emptyArray()
 > Instead of creating a empty list of Nulls and then getting into NullPointer hell, use emptyList or emptyArray, which creates a list/array of "Nothing", which can be used to assign to a pointer expecting a list of String
+
+> Exception handling in Java is painful, the existence of `Nothing` makes it easier and more like other modern languages.
 
 ## Operators
 
@@ -211,7 +221,7 @@ val asc3:Array<String> = Array(
 )
 ```
 
-### Specialized Arrays of primitive types are provded by Kotlin
+### Specialized Arrays of primitive types are provided by Kotlin
 - IntArray
 - FloatArray
 - StringArray etc.
@@ -228,6 +238,16 @@ var frr1 = floatArrayOf(1F, 2F, 3F, 4F, 5F)     // Correct way
 var irr2:Array<Int> = arrayOf(1, 2, 3, 4, 5)    // Array<Int>
 ```
 > Note: irr1 and irr2 have two *completely different* types
+
+#### Cleaning the confusion between Array<Int> and intArrayOf
+
+Java primitives (like `int`, `float`) cannot be `null` but have default values (e.g. 0 for int). Kotlin provides `Int`, `Float` as boxed values which are not-null, unlike their evil cousins `Int?`, `Float?`.
+
+To create a kotlin boxed element array use `Array<Int>` declaration which takes a lambda instead of making all values to default as 0 (for Int).
+
+To create a primitive element array use `intArrayOf` or `IntArray` declaration. `IntArray` only takes size as the parameters and defaults all elements to 0.
+
+>In general, its **always better** to use the boxed element array `Array<T>`. It has zero overheads over java primitive type array, unless you use nullable `Array<Int?>`, in which case, its actually helpful and not an overhead.
 
 ## Strings
 - Immutable (why? hashmaps, concurrency, a lot of settings (db name etc) is in strings
@@ -319,8 +339,9 @@ var d = when(x) {
     else -> 0
 }
 ```
-> Note 1: Only first satisfying condition is picked rest are ignored
-> Note 2: If value of when expression is getting assigned to something it MUST have an `else`
+> Note: Only first satisfying condition is picked rest are ignored
+
+> Note: If value of when expression is getting assigned to something it MUST have an `else`
 
 Arbitary expressions
 ```kotlin
@@ -334,7 +355,7 @@ when(x) {
 }
 ```
 
-> Note 3: Everytime we check in `if-else` or `when` using `is` operator, *SMARTCASTS* happen and you can use all object methods inside that code block
+> Note: Everytime we check in `if-else` or `when` using `is` operator, *SMARTCASTS* happen and you can use all casted object's methods inside that code block
 
 When w/o arguments - Can be used as if-elseif-if-else
 ```kotlin
@@ -445,9 +466,11 @@ fun getLowerName2(name: String): String = name.toLowerCase()
 `fun deleteFiles(filePattern: String, recursive: Boolean, ignoreCase: Boolean, deleteDirectories: Boolean): Unit`
 
 Compare the two different styles of calling this function:
+
 `deleteFiles("*.jpg", true, true, false)`
+
 `deleteFiles("*.jpg", recursive = true, ignoreCase = true, deleteDirectories = false)`
-> Rule: Once you have named one parameter, all subsequent ones need to be named
+>NOTE: Once you have named one parameter, all subsequent ones need to be named
 
 Default parameters work the regular way
 
@@ -528,8 +551,8 @@ val instance = Class().apply {
 ```
 
 ### `run` statements: This is a combo of `with` and `let`
-Confused between let, with, run etc. Refer:
-https://medium.com/@tpolansk/the-difference-between-kotlins-functions-let-apply-with-run-and-else-ca51a4c696b8
+Confused between let, with, run etc. Refer this [link](
+https://medium.com/@tpolansk/the-difference-between-kotlins-functions-let-apply-with-run-and-else-ca51a4c696b8)
 
 ### lazy evaluation
 Run only when accessed or used
@@ -547,13 +570,12 @@ repeat(10, { println("Hello") })  // second argument is a lambda
 
 ### require/assert/check
 
-Require: throws an exception and it is used to ensure that arguments match the input conditions
-Assert: throws an AssertionException exception and it is used to ensure that our internal state is consistent
-Check: throws an IllegalStateException exception and it is also used for internal state consistency
+- Require: throws an exception and it is used to ensure that arguments match the input conditions
+- Assert: throws an AssertionException exception and it is used to ensure that our internal state is consistent
+- Check: throws an IllegalStateException exception and it is also used for internal state consistency
 
 # Generic functions
-If we have a function for which we don't want to restrict the type of
-objects that it can take as input and output, there are two way to do it.
+If we have a function for which we don't want to restrict the type of objects that it can take as input and output, there are two ways to do it.
 
 ```kotlin
     fun generic_fun1(param1: Any, param2: Any, param3:Any): Any {
@@ -566,7 +588,7 @@ Casting Rule:
 
 This works because any input parameter will be cast into `Any`
 
-However, the output type will always be "Any", which cannot be casted into anything else (run time exception ClassCastException)
+However, the output type will always be "Any", which if upcasted may lead to runtime exception (ClassCastException)
 
 The way to solve this is using Generics in functions
 ```kotlin
@@ -589,10 +611,10 @@ generic_fun2(10, 11, 12)    // inferred type is Int
 
 ```kotlin
 fun <T> gen_fun(param1: T, param2: T) = param1 + param2   // Compile time error
-# Error, since "plus" is not defined for "Any"
+// Error, since "plus" is not defined for "Any"
 
 fun <T> gen_fun(param1: T, param2: T) = param1.toString() + param2.toString()
-# Works, since "toString" is defined in "Any"
+// Works, since "toString" is defined in "Any" and "+" is defined for str
 ```
 
 The real use case is with upper-bounds. We can tell the compiler that T can be of one and more possible types
@@ -695,6 +717,7 @@ val m3 = m1 + m2
 ## Special operators
 
 *in/contains* : `3 in arrayOf(1, 2, 3)` equivalent to `arrayOf(1, 2, 3).contains(3)`
+
 *[]* operator is implemented using `get` and `set`
 Example:
 ```kotlin
@@ -862,5 +885,5 @@ class Main {
     }
 }
 ```
-In case of kotlin, the `companion` keyword create a `static` inner class and if there is no name of the class, exposes it as a class named `Companion`
+In case of kotlin, the `companion` keyword creates a `static` inner class and if there is no name of the class, exposes it as a class named `Companion`
 

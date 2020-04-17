@@ -18,7 +18,7 @@ Before we start, few known things:
 - Functions are allowed to take sub-types as input, so fun foo(f:Fruit), can be called with foo(apple) or foo(orange) (Apple and Orange being sub-types of Fruit)
 
 ```kotlin
-class Fruit {
+open class Fruit {
     fun isSafeToEat(): Boolean { ... }
 }
 class Apple : Fruit()
@@ -35,23 +35,29 @@ fun foo(crate: Crate<Fruit>): Unit {
     crate.add(Apple())
 }
 
-// And we try to use it as
+// Usage:
 
-val oranges = Crate(mutableListOf(Orange(), Orange()))  // crate of oranges
-foo(oranges)                                            // add apple to crate of oranges
+// crate of oranges
+val oranges = Crate(mutableListOf(Orange(), Orange()))
+
+// add apple to crate of oranges
+foo(oranges)    // ERROR, expects a Fruit, not an orange
 ```
 We are calling foo with a `Crate<Orange>` which should be possible if `Crate<Orange>` was a sub-type of `Crate<Fruit>`
 However, this is not allowed in Kotlin (its allowed in some language, its a compiler design thing, religious stuff, just have faith that it was done for good reasons and don't ask why)
 
 But since you ask Why? This may lead to weird runtime errors, like below
 ```kotlin
-val oranges = Crate(mutableListOf(Orange(), Orange()))  // crate of oranges
-foo(oranges)                          // add apple to crate of oranges
+// crate of oranges
+val oranges = Crate(mutableListOf(Orange(), Orange()))
+
+// add apple to crate of oranges
+foo(oranges)
 val orange: Orange = oranges.last()  // get the last fruit(apple) as orange - NO CAN DO
 ```
 You have polluted a crate of Orange with Apple, which is wrong sub-type of Fruit in this context.
 
-So Kotlin compiler decides to not have a super or sub type relation between `Crate<Fruit>` and `Crate<Apple>` even if there is a relation between `Fruit` and `Apple` This is called being *INVARIANT*.`Crate<Fruit>` and `Crate<Apple>` are invariant
+So Kotlin compiler decides to not have a super or sub type relation between `Crate<Fruit>` and `Crate<Apple>` even if there is a relation between `Fruit` and `Apple` This is called being *INVARIANT*. `Crate<Fruit>` and `Crate<Apple>` are invariant
 
 Now, suppose we need to get fruits in a crate which are safe to eat. We can write a generic function which take any crate of fruits and find the ones safe to eat
 ```kotlin
@@ -77,9 +83,9 @@ class CovariantCrate<out T>(val elements: List<T>) {
 }
 ```
 Three things to notice:
-    - The keyword `out` makes it COVARIANT
-    - Since it "COVARIANT", it CANNOT have any methods which take T as INPUT (except constructor). T as output is fine. This constraint is imposed, so that there is no way to take an Orange where a Fruit is expected, and no way to add or pollute the CovariantCrate with bad sub-types. *Basically, immutable*
-    - This is derived from List instead of MutableList, since MutableList adds the method "add" to this which takes T as input, which is prohibited from the law above.
+- The keyword `out` makes it COVARIANT
+- Since it "COVARIANT", it CANNOT have any methods which take T as INPUT (except constructor). T as output is fine. This constraint is imposed, so that there is no way to take an Orange where a Fruit is expected, and no way to add or pollute the CovariantCrate with bad sub-types. *Basically, immutable*
+- This is derived from List instead of MutableList, since MutableList adds the method "add" to this which takes T as input, which is prohibited from the law above.
 
 Now I can call isSafe method with a `CovariantCrate<Apple>` or `CovariantCrate<Orange>`, Respect DRY.
 
@@ -153,7 +159,7 @@ EventStream<BigDecimal>(loggingListener).start()
 For CoVariance, methods of the class are not allowed to have T as input, but only as output
 For ContraVariance, methods of the class are allowed to have T as input, but NOT as output
 
-Summary: Properly using Variance needs effort and thinking. In general, the rules is something like this:
+Summary: Properly using Variance needs effort and thinking. In general, the rules are something like this:
 
 If the objects are derived as:
 > `A`(base), `B`(derived from `A`), `C`(derived from `B`)  `A` -> `B` -> `C`

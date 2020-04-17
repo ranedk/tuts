@@ -29,10 +29,12 @@ How this helps in lazy loading, is that until you call `getInstance`, the Single
 Is there a better way? Kotlin provides the following:
 ```kotlin
 public class ClassWithHeavyInitialization private constructor() {
+    // Singleton class Holder
     private object Holder {
         val INSTANCE = ClassWithHeavyInitialization()
     }
 
+    // Declare a static singleton
     companion object {      // companion makes it static inner, object makes it singleton
         val instance: ClassWithHeavyInitialization by lazy {
             Holder.INSTANCE
