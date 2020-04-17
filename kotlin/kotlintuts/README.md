@@ -249,6 +249,7 @@ To create a primitive element array use `intArrayOf` or `IntArray` declaration. 
 
 >In general, its **always better** to use the boxed element array `Array<T>`. It has zero overheads over java primitive type array, unless you use nullable `Array<Int?>`, in which case, its actually helpful and not an overhead.
 
+
 ## Strings
 - Immutable (why? hashmaps, concurrency, a lot of settings (db name etc) is in strings
 - Characters forming String can be accessed by indexing
@@ -279,6 +280,60 @@ val st2 = """Twinkle twinkle
 
 print(st1 == st2) // True
 ```
+
+### Lists
+
+Just list `Array`, we also have `List` in Kotlin. Very similar methods. However,
+
+> Note: Arrays are immutable and are very performant. For practical purposes, you need `List` which can be mutable. 
+
+
+`Array` and `List` (and its subtype `MutableList<T>`) have many differences, here are the most significant ones:
+
+- `Array<T>` is a class with known implementation: it's a sequential fixed-size memory region storing the items (its equal to Java Array).
+- `List<T>` and `MutableList<T>` are interfaces which have different implementations: `ArrayList<T>`, `LinkedList<T>` etc. Memory representation and operations logic of lists are defined in concrete implementation, e.g. indexing in a `LinkedList<T>` goes through the links and takes O(n) time whereas `ArrayList<T>` stores its items in a dynamically allocated array.
+
+    ```kotlin
+    val list1: List<Int> = LinkedList<Int>()
+    val list2: List<Int> = ArrayList<Int>()
+    ```
+
+- `Array<T>` is mutable (it can be changed through any reference to it), but `List<T>` doesn't have modifying methods (it is either [read-only view of `MutableList<T>`) or an immutable list implementation).
+
+    ```kotlin
+    val a = arrayOf(1, 2, 3)
+    a[0] = a[1] // OK
+
+    val l = listOf(1, 2, 3)
+    l[0] = l[1] // doesn't compile
+
+    val m = mutableListOf(1, 2, 3)
+    m[0] = m[1] // OK
+    ```
+
+- Arrays have fixed size and cannot expand or shrink retaining identity (you need to copy an array to resize it. As to the lists, `MutableList<T>` has `add` and `remove` functions, so that it can increase and reduce its size.
+
+    ```kotlin
+    val a = arrayOf(1, 2, 3)
+    println(a.size) // will always be 3 for this array
+
+    val l = mutableListOf(1, 2, 3)
+    l.add(4)
+    println(l.size) // 4
+    ```
+
+- `Array<T>` is invariant on `T` (`Array<Int>` is not `Array<Number>`), the same for `MutableList<T>`, but `List<T>` is covariant (`List<Int>` is `List<Number>`) (more on this later).
+
+    ```kotlin
+    val a: Array<Number> = Array<Int>(0) { 0 } // won't compile
+    val l: List<Number> = listOf(1, 2, 3) // OK
+    ``` 
+
+- Arrays are optimized for primitives: there are separate `IntArray`, `DoubleArray`, `CharArray` etc. which are mapped to Java primitive arrays (`int[]`, `double[]`, `char[]`), not `boxed` ones (`Array<Int>` is mapped to Java's `Integer[]`). Lists in general do not have implementations optimized for primitives, though some libraries (outside JDK) provide primitive-optimized lists.
+
+- `List<T>` and `MutableList<T>` have special behaviour in Java interoperability (Java's `List<T>` is seen from Kotlin as either `List<T>` or `MutableList<T>`). Arrays are also mapped, but they have of Java interoperability.
+
+> NOTE: As to the usage, good practice is to prefer using lists over arrays everywhere except for performance critical parts of your code..
 
 ### String templates
 `${<expression>}` inside a string will run expression
