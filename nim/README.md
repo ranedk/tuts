@@ -24,6 +24,11 @@ $ choosenim stable
 
 ```nim
 # hello.nim
+#[ nim is a lot like python,
+its requires indentation (4 spaces)
+and helps write very concise code
+]#
+
 echo "Hello world!"
 ```
 
@@ -51,5 +56,4 @@ $ nim c -r --verbosity:0 hello.nim
 # Higher verbosity
 $ nim c -r --verbosity:2 hello.nim
 ```
-
 
