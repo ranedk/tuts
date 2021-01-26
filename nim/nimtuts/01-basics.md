@@ -108,6 +108,26 @@ Properties of ordinal types:
 var x = int(1 / 3.0)  # type conversion
 ```
 
+## Default values
+
+By default, Nim will initialize variable to their default primitive values:
+
+|Type|default value|
+|----|-------------|
+|any integer type|0|
+|any float|0.0|
+|char|'\0'|
+|bool|false|
+|ref or pointer type|nil|
+|procedural type|nil|
+|sequence|@[]|
+|string|""|
+|tuple[x: A, y: B, ...]|(default(A), default(B), ...) (analogous for objects)|
+|array[0..., T]|[default(T), ...]|
+|range[T]|default(T); this may be out of the valid range|
+|T = enum|cast\[T\](0); this may be an invalid value|
+
+
 # Functions (aka procedures - proc)
 
 ```nim
@@ -127,6 +147,26 @@ proc simple(fname: string, lname: string): string =
 echo "fullname: ", simple("Devendra", "Rane")
 ```
 > Notes: Do not override result by overwriting `result`
+
+**Functions can be called as methods too. e.g.`foo(a, b)` or `a.foo(b)`**
+
+## Exporting procs or other symbols
+
+Annotating a proc/symbol with `*` will make it exposed from that module:
+
+```nim
+# module1
+
+proc foo*(): int = 2
+proc bar(): int = 3
+
+#module2
+
+import module1
+
+let a = foo()        # <-- import module1 exposes foo
+let b = bar()        # ERROR <-- bar doesn't get exposed
+```
 
 # Conditionals
 
@@ -189,4 +229,125 @@ case num:
 
 # Loops and iterators
 
+Nim implements Iterators like other languages, which implement methods `items` or `pairs`. The `iterators` can be used in for loops with `break` and `continue`
 
+**Simple iterator**
+
+```nim
+iterator iterByThree(a: int, b: int): int =
+    var i = a
+    while i <= b:
+        yield i
+        i += 3
+
+for i in iterByThree(4, 20):
+    echo "i = ", i
+```
+
+**Object based iterator**
+
+```nim
+type
+  CustomRange = object
+    low: int
+    high: int
+
+iterator items(range: CustomRange): int =
+  var i = range.low
+  while i <= range.high:
+    yield i
+    inc i
+
+iterator pairs(range: CustomRange): tuple[a: int, b: char] =
+  for i in range:  # uses CustomRange.items
+    yield (i, char(i + ord('a')))
+
+
+for i in CustomRange(low: 0, high: 3):
+  echo "i = ", i
+
+for i, c in CustomRange(low: 0, high: 3):
+  echo "(i, c) = ", i, ", ", c
+
+#[
+Output:
+    i = 0
+    i = 1
+    i = 2
+    i = 3
+    (i, c) = 0, a
+    (i, c) = 1, b
+    (i, c) = 2, c
+    (i, c) = 3, d
+]#
+```
+
+# Opertors
+
+All random operators can be defined. DSLs can take lot of advantage of this.
+
+```nim
+import math
+
+proc `**`(a: int, b: int): int =
+    result = a ^ b
+
+# Boring function call
+echo "2^10 = ", `**`(2, 10)
+
+# Cool, operator call
+echo "2^10 = ", 2**10
+```
+
+> Note: The `math` library implements `^` as power operator in the same way
+
+You can even mix operators with iterators!
+
+```nim
+iterator `...`(a: int, b: int): int =
+  var res = a
+  while res <= b:
+    yield res
+    res += 1
+
+for i in 0...5:
+  echo i
+
+for i in `...`(0, 5):
+    echo i
+```
+
+> Note: Iterators are by default inline. Meaning the call in the code, gets replaces by the complete function. So there are no function call overheads, but the code size increases. There are cases though, when iterator cannot be inlined, when they have closures (iterators holding external state in them)
+
+**Closure iterator**
+
+```nim
+proc incrBy(incr: int): iterator(a:int, b:int): int =
+  return iterator(a: int, b:int): int =
+    var i = a
+    while i <= b:
+      yield i
+      i += incr
+
+let incr3 = incrBy(3)
+
+for i in incr3(4, 20):
+    echo "i = ", i
+```
+Since this iterator maintains the state `incr`, it cannot be inlined since the iterator gets the state in runtime. This is hence a closure iterator.
+
+**Another way to use iterators**
+
+```nim
+let incr4 = incrBy(4)
+
+var output = ""
+while true:
+  let next = incr4(4, 20)
+  if finished(incr4):
+    break
+  output.add($next & " ")
+
+echo "output = ", output
+# output = 4 8 12 16 20
+```

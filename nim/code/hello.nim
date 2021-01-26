@@ -1,15 +1,23 @@
-import typetraits
+proc incrBy(incr: int): iterator(a:int, b:int): int =
+  return iterator(a: int, b:int): int =
+    var i = a
+    while i <= b:
+      yield i
+      i += incr
 
-type Direction = enum
-    EAST = 15,
-    NORTH = 1,
-    WEST = 20,
-    SOUTH = 25
+let incr3 = incrBy(3)
 
-var num = Direction.WEST
-echo "num = ", num
+for i in incr3(4, 20):
+    echo "i = ", i
 
-echo "string representation of num is = ", $(num)
-echo "integer value of num = ", ord(num)
-echo "num is ", num.type.name
+let incr4 = incrBy(4)
 
+var output = ""
+while true:
+  let next = incr4(4, 20)
+  if finished(incr4):
+    break
+  output.add($next & " ")
+
+
+echo "output = ", output
