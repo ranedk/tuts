@@ -33,6 +33,10 @@ const name = myName()
 
 **Integers**: `int int8 int16 int32 int64 uint uint8 uint16 uint32 uint64`
 
+```nim
+var x: int = 1_23_345   # underscores for readability
+```
+
 **Float**: `float float32 float64`
 
 **Characters**: `char`
@@ -59,7 +63,7 @@ for i in 0..s.runeLen-1:
 
 **Null**: `nil`
 
-**Type alias**: `type biggestFloat = int64` To create alias of basic types
+**Type alias**: To create alias of basic types `type biggestFloat = float64`
 
 **Enums**:
 ```nim
@@ -150,6 +154,21 @@ echo "fullname: ", simple("Devendra", "Rane")
 
 **Functions can be called as methods too. e.g.`foo(a, b)` or `a.foo(b)`**
 
+## Pragmas with procs
+
+Procs can be decorated with pragmas e.g. {.noSideEffect.}
+
+```nim
+proc minus(x, y: int): int {. noSideEffect .} =
+    echo x  # error: 'minus' can have side effects
+    x - y
+
+```
+This will make sure that any attempt to modify `x` or `y` inside `proc minus`
+ will give compiler error.
+
+More on [Pragmas](02-pragmas.md)
+
 ## Exporting procs or other symbols
 
 Annotating a proc/symbol with `*` will make it exposed from that module:
@@ -192,7 +211,7 @@ else:
     echo "num is greater than two"
 
 
-block outermost:
+block outermost:          # blocks are used to create new scoping
     while true:
         var guess = rand(num)
         if guess > int(num / 2):
@@ -229,7 +248,7 @@ case num:
 
 # Loops and iterators
 
-Nim implements Iterators like other languages, which implement methods `items` or `pairs`. The `iterators` can be used in for loops with `break` and `continue`
+Nim implements Iterators like other languages, which implement methods `items` or `pairs`. The `iterators` can be used in for loops with `break` and `continue`. Iterators **do not** have the `result` variable implicit.
 
 **Simple iterator**
 
@@ -282,7 +301,7 @@ Output:
 ]#
 ```
 
-# Opertors
+# Operators
 
 All random operators can be defined. DSLs can take lot of advantage of this.
 

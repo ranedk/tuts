@@ -1,23 +1,38 @@
-proc incrBy(incr: int): iterator(a:int, b:int): int =
-  return iterator(a: int, b:int): int =
-    var i = a
-    while i <= b:
-      yield i
-      i += incr
+type Employee* = object
+    name*, department*: string
+    age: int
+    salary: int
 
-let incr3 = incrBy(3)
+# Note the keyword "var", this expects a mutable instance
+proc increment*(e: var Employee) =
+  e.salary = int(1.2 * float(e.salary))
 
-for i in incr3(4, 20):
-    echo "i = ", i
+# Note the keyword "var", this expects a mutable instance
+proc decrement*(e: var Employee) =
+  e.salary = int(0.8 * float(e.salary))
 
-let incr4 = incrBy(4)
-
-var output = ""
-while true:
-  let next = incr4(4, 20)
-  if finished(incr4):
-    break
-  output.add($next & " ")
+proc salaryProjection(e: Employee): int =
+  return int(1.2 * float(e.salary))
 
 
-echo "output = ", output
+# variable employee - created on stack
+var e1 = Employee(name: "Devendra rane", age:30, salary: 1_00_000)
+e1.name = "Devendra K rane"
+e1.increment()
+echo "e1 = ", e1
+
+# immutable Employee - created on stack
+let e2 = Employee(name: "Nihira rane", age:3, salary: 10)
+# e2.increment()  # ERROR: Invalid, increment expects a variable
+echo "e2 salary projection = ", e2.salaryProjection()
+
+
+# Create a reference to the Employee on stack after allocation in heap
+let e3: ref Employee = new(Employee)
+
+e3.name = "Abhiruchi Chand"
+e3.age = 28
+e3.salary = 2_00_000
+
+echo "e3 = ", e3.name, " | ", e3.age, "|",  e3.salary
+echo "e3 = ", e3.name, " | ", e3.age, "|",  e3.salary
