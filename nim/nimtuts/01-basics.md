@@ -61,9 +61,79 @@ for i in 0..s.runeLen-1:
     echo ">", s.runeAtPos(i)
 ```
 
+Multiline Strings:
+```nim
+let a = """This is a multiline string
+which doesn't interpret \n and escape characters"""
+
+let r = r"\b\n\r[A-Z]"  # escape characters are not interpreted
+```
+
+String can be treated a sequences (more on this later)
+
+General string manipulation
+
+```nim
+import strutils     # all most used string utils
+
+var a = "Hello, World!"
+
+# The split proc takes a sequence of characters and splits a string based on them
+echo a.split({' ', ','})
+# Output: @["Hello", "", "World!"]
+
+# The contains proc determines whether a string contains a substring or character
+echo a.contains("Hello")
+```
+
 **Null**: `nil`
 
-**Type alias**: To create alias of basic types `type biggestFloat = float64`
+**Type alias**: To create alias of basic types
+
+```nim
+type biggestFloat = float64
+
+var a: float64 = 10.0
+var b: biggestFloat = 20.0
+
+if a == b:        # this is valid since a and b are of same types
+    echo "Equal"
+```
+
+**Distinct Type alias**
+
+```nim
+type largeFloat = distinct float64
+var x: float64 = 100.0
+var y: largeFloat = 1000.0
+
+# if x == y     # ERROR, x & y are different types
+
+if x.largeFloat == y:
+    echo "Same values"
+```
+
+Distinct types can be very useful if the stucture you want has only one value. E.g. if a function takes a currency and it should not take any number type, then you can define currency as a distinct type.
+
+However, this makes life difficult, you will have to implement ALL operators and methods for primitive types again. So, we have a shortcut.. the `borrow` pragma
+
+```nim
+proc `*` *(a, b: Dollars): Dollars {.borrow.}
+proc `+` *(a, b: Dollars): Dollars {.borrow.}
+a = 20.Dollars * 20.Dollars
+```
+
+If you create a `distinct` type from a object, then its members will NOT carried over, unless we use the `.borrow.` as:
+
+```nim
+type Foo = object
+    a: int
+
+MyFoo {.borrow: `.`.} = distinct Foo
+
+var value: MyFoo
+echo value.a  # Works
+```
 
 **Enums**:
 ```nim
@@ -89,7 +159,7 @@ type VOLTAGE = enum
 
 #### Ordinal types
 
-All types which behave like a bounded array (and have limited small size)
+All types which behave like a bounded array (and have limited small size, < 2^16 (i.e. 65536))
 Properties of ordinal types:
 
 | Operation | Comment |
@@ -153,6 +223,8 @@ echo "fullname: ", simple("Devendra", "Rane")
 > Notes: Do not override result by overwriting `result`
 
 **Functions can be called as methods too. e.g.`foo(a, b)` or `a.foo(b)`**
+
+Default arguments are supported too `proc foo(c: string, a: int = 10, b: float = 100)`
 
 ## Pragmas with procs
 
