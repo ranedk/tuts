@@ -129,11 +129,13 @@ If you create a `distinct` type from a object, then its members will NOT carried
 type Foo = object
     a: int
 
-MyFoo {.borrow: `.`.} = distinct Foo
+MyFoo {.borrow: `.`.} = distinct Foo  # This wants to borrow the "." accessor only
 
 var value: MyFoo
 echo value.a  # Works
 ```
+
+>NOTE: Pragmas are defined between the `{.` and `.}` operators. No space between `{` and `.`. All these are valid `{.borrow:`.`.}` or `{. borrow : `.` .}`
 
 **Enums**:
 ```nim
@@ -142,10 +144,10 @@ import typetraits    # provides <var>.type.name to get type of a variable
 type Direction = enum NORTH, EAST, WEST, SOUTH
 
 var num = Direction.WEST
-echo "num = ", num
-echo "string representation of num is = ", $(num)
-echo "integer value of num = ", ord(num)
-echo "num is ", num.type.name
+
+assert $(num) == "WEST"
+assert ord(num) == 2
+assert num.type.name == "Direction"
 
 # To give different ordinal values to enums:
 type VOLTAGE = enum
@@ -202,7 +204,7 @@ By default, Nim will initialize variable to their default primitive values:
 |T = enum|cast\[T\](0); this may be an invalid value|
 
 
-# Functions (aka procedures - proc)
+# Procedures - `proc`
 
 ```nim
 # Simple example
@@ -232,9 +234,10 @@ Procs can be decorated with pragmas e.g. {.noSideEffect.}
 
 ```nim
 proc minus(x, y: int): int {. noSideEffect .} =
-    echo x  # error: 'minus' can have side effects
+    echo x
     x - y
 
+# Compile time error: 'minus' can have side effects
 ```
 This will make sure that any attempt to modify `x` or `y` inside `proc minus`
  will give compiler error.
