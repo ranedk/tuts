@@ -45,10 +45,22 @@ echo powersOfTwo.filter(proc (x: int): bool = x > 32)
 echo powersOfTwo.filter( (x) => x > 32)
 ```
 
-# Functions which take proc as arguments
+# Proc which take proc as arguments
+
+### The regular way:
+
+```
+proc map(str: string, fun: proc(c: char): char): string =
+  for c in str:
+    result &= fun(c)
+```
+
+### The sugar way
 
 `sugar` also provides a `->` macro to define a function as an argument to a function.
 e.g. `(int, int) -> float` denotes `proc` takes 2 `int` arguments and return a `float`
+
+> Note: The regular way and the sugar way are only syntatically different, but otherwise interchangable
 
 ```nim
 import sugar
@@ -56,7 +68,6 @@ import sugar
 proc map(str: string, fun: (char) -> char): string =
   for c in str:
     result &= fun(c)
-
 
 echo "foo".map((c) => char(ord(c) + 1))
 
