@@ -32,6 +32,8 @@ echo zip([10, 20, 30], ["apple", "boy", "cat"])
 # outputs: [(a: 10, b: "apple"), (a: 20, b: "boy"), (a: 30, b: "cat")]
 ```
 
+>Note: You can replace `I` with `int` above. However, it won't work for other ordinal types like `enum`
+
 **Any ordinal value can be used as array index**
 
 ```nim
@@ -97,10 +99,10 @@ This looks complicated because `array` type is treated very differently than `se
 
 # Sequence - Dynamic Lists
 
-Create sequence with `@` operator and with the `newSeq[T](n: int)` method
-Methods on sequence `add(item: T)`, `delete(idx: int)`
-Length by the property `len: int`, maximum index through `high: int`. Max index is `length - 1`
-Iteration with `items: T` and `pairs: tuple[i: int, v: T]`
+- Create sequence with `@` operator and with the `newSeq[T](n: int)` method
+- Methods on sequence `add(item: T)`, `delete(idx: int)`
+- Length by the property `len: int`, maximum index through `high: int`. Max index is `length - 1`
+- Iteration with `items: T` and `pairs: tuple[i: int, v: T]`
 
 ```nim
 import strformat

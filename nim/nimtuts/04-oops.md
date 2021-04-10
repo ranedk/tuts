@@ -187,10 +187,10 @@ let c = Car(
 )
 
 echo fmt"""
-    l1tyrePrice:{c[].l1Tyre.price()},
-    l2tyrePrice:{c[].l2Tyre.price()},
-    r1tyrePrice:{c[].r1Tyre.price()},
-    r2tyrePrice:{c[].r2Tyre.price()}
+    l1tyrePrice:{c.l1Tyre.price()},
+    l2tyrePrice:{c.l2Tyre.price()},
+    r1tyrePrice:{c.r1Tyre.price()},
+    r2tyrePrice:{c.r2Tyre.price()}
 """
 ```
 
@@ -229,11 +229,19 @@ type Car = ref object of RootObj
     r1Tyre: Tyre
     r2Tyre: Tyre
 
+let c = Car(
+    color: "green",
+    l1Tyre: BudgetTyre(name: "l1"),
+    l2Tyre: FlatTyre(name: "l2"),
+    r1Tyre: WornTyre(name: "r1"),
+    r2Tyre: BudgetTyre(name: "r2")
+)
+
 echo fmt"""
-    l1tyrePrice:{c[].l1Tyre.price()},
-    l2tyrePrice:{c[].l2Tyre.price()},
-    r1tyrePrice:{c[].r1Tyre.price()},
-    r2tyrePrice:{c[].r2Tyre.price()}
+    l1tyrePrice:{c.l1Tyre.price()},
+    l2tyrePrice:{c.l2Tyre.price()},
+    r1tyrePrice:{c.r1Tyre.price()},
+    r2tyrePrice:{c.r2Tyre.price()}
 """
 ```
 
@@ -245,7 +253,8 @@ Output:
     r2tyrePrice:r2 Budget tyre: $100
 ```
 
-You can use `method` and never use `proc`. There is although a little bit of overhead in terms of using `method`. But for most applications, you can ignore them.
+You can use `method` and never use `proc`. There is although a little bit of overhead in terms of using `method`.
+In general, use both `proc` and `method` based on your requirements of dispatch.
 
 > Note: Dynamic dispatch using `method` only works with `ref` object
 
@@ -268,7 +277,16 @@ method m(a: Unit) =
 
 `procCall` means call the super method. Its call `procCall` because instead of doing dynamic call, it means use `proc` like lookup and call super
 
-### For more dope on OOPS
+### ref object Vs object
 
-http://goran.krampe.se/2014/11/30/nim-and-oo-part-iv/
+Very simply out, almost all languages Python, Java, Javascript etc. use `ref` type objects. So always using `ref` type object is fine.
+
+However, if you do want to use `object` understand the following:
+
+- The GC generally behaves faster with `object` types
+- They are very good for local scopes
+- Assignment (or passing to a proc/method) copies the object
+- They can be made immutable unlike `ref` types
+- If your objects cross reference other objects, don't use `object` types
+- For multi-threaded programming, using immutable `object` types leads to better code
 
