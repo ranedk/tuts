@@ -79,3 +79,55 @@ echo "foo".map(proc (c: char): char = char(ord(c) + 1))
 
 echo "foo".map do (c: char) -> char: char(ord(c) + 1)
 ```
+
+### Varargs
+
+#### Variable number of arguments to a proc
+
+To declare variable number of variables of a type use `words: varargs[string])`
+
+```nim
+proc echoLn(words: varargs[string]) =
+  for w in words:
+    echo w
+
+echoLn "prints", "words", "in", "new", "lines"
+```
+
+#### Variable number of arguments with type casts
+
+To declare variable number of string, and typecast `words: varargs[string, `$`])`
+
+```nim
+proc addInt(numbers: varargs[int]): int =
+    result = 0
+    for n in numbers:
+        result += n
+
+echo addInt(1, 2, 3, 4)         // Works
+echo addInt(1, 2, 3.0, 4.0)     // FAILS.. expects only int, not float
+```
+
+Lets update it with type cast
+
+```nim
+proc addInt(numbers: varargs[int, int]): int =
+    result = 0
+    for n in numbers:
+        result += n
+
+echo addInt(1, 2, 3, 4)         // Works
+echo addInt(1, 2, 3.0, 4.0)     // Works with floats as well
+```
+
+You can update the `echoLn` as follows, so it converts everything to string representation
+
+```nim
+proc echoLn(words: varargs[string, `$`]) =
+  for w in words:
+    echo w
+
+echoLn "one", 2, @[3, 4, 5]
+```
+
+
