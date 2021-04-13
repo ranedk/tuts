@@ -1,3 +1,14 @@
+# Tuples
+
+`tuple` behave like python namedtuples:
+
+```nim
+type
+    Person = tuple      # type representing a person
+        name: string    # a person consists of a name
+        age: int        # and an age
+```
+
 # Arrays
 
 Size is specified at compile-time and cannot be changed later
@@ -173,6 +184,110 @@ echo "l = ", l
 l = @[@[0, 0, 0, 0], @[0, 1, 2, 3], @[0, 2, 4, 6], @[0, 3, 6, 9]]
 ```
 
+# OpenArray
+
+For methods which can take `seq` or `array` or `string`, then we use `openarray` e.g.
+
+```nim
+proc testOpenArray(x: openArray[int]) = echo repr(x)
+
+testOpenArray([1,2,3])  # array[]
+testOpenArray(@[1,2,3]) # seq[]
+```
+
+```nim
+proc testOpenArray[T](x: openArray[T]) = echo repr(x)
+
+testOpenArray([1,2,3])          # array[]
+testOpenArray(@[1,2,3])         # seq[]
+testOpenArray("some string")    # string
+```
+
+# List operations
+
+`sequtils` takes care of `seq`, `array` and `string` by providing the `openarray` interface to its methods.
+`sugar` provides functional methods on `openarray`.
+
+So almost all list operations can be achieved with a mix of both
+
+```nim
+import sequtils, sugar
+
+let scores = @[10, 12, 34, 5, 23, 76, 12, 74, 23, 65]
+
+let parsed1 = scores.map(x => x*2).filter(x => x > 60)
+
+let parsed2 = scores.mapIt(it * 2).filterIt(it > 60)
+
+let parsed3 = collect(newSeq):
+    for s in scores:
+        let m = s * 2
+        if m > 60:
+            m
+
+doAssert parsed1 == @[68, 152, 148, 130]
+doAssert parsed1 == parsed2
+doAssert parsed1 == parsed3
+
+echo scores.any(x => x > 50)     # true
+echo scores.anyIt(it > 50)       # true
+echo scores.allIt(it < 100)      # true
+echo scores.foldl(a + b)         # 334 (sum of all scores)
+```
+
+```nim
+import sequtils
+from strutils import join
+
+let
+  vowels = @"aeiou"     # creates a sequence @['a', 'e', 'i', 'o', 'u']
+  foo = "The quick brown fox jumps over a lazy dog"
+
+echo foo.filterIt(it notin vowels).join("")
+# Output = Th qck brwn fx jmps vr  lzy dg
+```
+
+> NOTE: `foo.filterIt(it notin vowels).join("")` can also be written as `foo.filterIt(it notin vowels).join`. If method has no parameters, you dont have to call it. Do not use it, it looks fugly.
+
+Other common methods:
+```nim
+proc concat[T](seqs: varargs[seq[T]]): seq[T]
+proc count[T](s: openArray[T]; x: T): int
+proc cycle[T](s: openArray[T]; n: Natural): seq[T]
+proc repeat[T](x: T; n: Natural): seq[T]
+proc deduplicate[T](s: openArray[T]; isSorted: bool = false): seq[T]
+proc minIndex[T](s: openArray[T]): int
+proc maxIndex[T](s: openArray[T]): int
+proc zip[S, T](s1: openArray[S]; s2: openArray[T]): seq[(S, T)]
+proc unzip[S, T](s: openArray[(S, T)]): (seq[S], seq[T])
+proc distribute[T](s: seq[T]; num: Positive; spread = true): seq[seq[T]]
+proc map[T, S](s: openArray[T]; op: proc (x: T): S {...}): seq[S] {...}
+proc apply[T](s: var openArray[T]; op: proc (x: var T) {...}) {...}
+proc apply[T](s: var openArray[T]; op: proc (x: T): T {...}) {...}
+proc apply[T](s: openArray[T]; op: proc (x: T) {...}) {...}
+proc filter[T](s: openArray[T]; pred: proc (x: T): bool {...}): seq[T] {...}
+proc keepIf[T](s: var seq[T]; pred: proc (x: T): bool {...}) {...}
+proc delete[T](s: var seq[T]; first, last: Natural)
+proc insert[T](dest: var seq[T]; src: openArray[T]; pos = 0)
+proc all[T](s: openArray[T]; pred: proc (x: T): bool {...}): bool
+proc any[T](s: openArray[T]; pred: proc (x: T): bool {...}): bool
+iterator filter[T](s: openArray[T]; pred: proc (x: T): bool {...}): T
+iterator items[T](xs: iterator (): T): T
+macro mapLiterals(constructor, op: untyped; nested = true): untyped
+template filterIt(s, pred: untyped): untyped
+template keepItIf(varSeq: seq; pred: untyped)
+template countIt(s, pred: untyped): int
+template allIt(s, pred: untyped): bool
+template anyIt(s, pred: untyped): bool
+template toSeq(iter: untyped): untyped
+template foldl(sequence, operation: untyped): untyped
+template foldl(sequence, operation, first): untyped
+template foldr(sequence, operation: untyped): untyped
+template mapIt(s: typed; op: untyped): untyped
+template applyIt(varSeq, op: untyped)
+template newSeqWith(len: int; init: untyped): untyped
+```
+
 # BitSets
 
 Set operations are available and implemented using `bitsets`. They are ordinal types hence a set cannot have more than 2^16 elements. However, they implement a lot cool set operations (like Python set type)
@@ -189,6 +304,4 @@ Set operations are available and implemented using `bitsets`. They are ordinal t
 |A * B|intersection of A with B|\{'a'..'m'} * \{'c'..'z'\} == \{'c'..'m'\}|
 |A <= B|is A a subset of B?|\{'a'..'c'\} <= \{'a'..'z'\}|
 |A < B|is A a strict subset of B?|\{'b'..'c'\} < \{'a'..'z'\}|
-
-
 

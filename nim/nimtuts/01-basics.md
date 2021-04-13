@@ -1,3 +1,44 @@
+# Nuances or Nuisances
+
+Each language has some distinct features, which are arguable.
+
+**Partial case-insensitivity**
+
+If you have used JS, Python, Java together, exchanging data using JSON camelCase and snake_style is difficult. You end up writing wrapper to-and-fro in both the languages or end up using wrong style variables in one language.
+
+Lucky for Nim, `myVar` and `my_var` are treated same. Applies to keywords too, like operator `notIn`, `not_in`, `notin` are all treated the same. Our preferred way is pythonic (`not_in`), because we are biased.
+
+**Keyword escaping**
+
+If you want to use a keyword as a variable (NEVER DO THIS), you can use backticks e.g.
+```nim
+var `var` = 10
+let `let` = 8
+assert `var` + `let` == 18
+```
+
+# Comments
+
+```nim
+
+# This is a single line comment
+
+#[ This is a multi-line
+comment and can be used
+]#
+
+proc myFunction() =
+    ##[
+        This is a multi-line comment
+        and can be used for documenting
+        a method, function, object like
+        any other language
+    ] ##
+    ...
+    ...
+
+```
+
 # Variables
 
 ```nim
@@ -319,6 +360,56 @@ case num:
         echo "num is zero"
     else:
         echo "num is 6"
+```
+
+# Loops
+
+All loops below output 1 2 3 4 5 6 7 8 9 10
+
+```nim
+for i in countup(1, 10):
+  echo i
+
+var i = 1
+while i <= 10:
+  echo i
+  inc(i) # increment i by 1
+
+for i in 1 .. 10:
+  echo i
+```
+
+**Other `for` loop shortcuts:**
+
+```nim
+for i in 0 ..< 10:
+    echo i
+# Output 0 2 3 4 5 6 7 8 9
+
+
+# ^1 means upto the size of the string, list
+var s = "some string"
+for idx, c in s[3 .. ^1]:
+    echo c
+# Outputs "e string" in different lines
+
+
+var s = "some string"
+for idx, c in substr(s, 3, 7):
+    echo c
+# Outputs "e str" in different lines
+```
+
+**Reverse iteration**
+
+```nim
+import std/[algorithm]
+
+var s = "some string"
+for c in reversed(s):
+    echo c
+
+# Outputs "gnirts emos"
 ```
 
 # Loops and iterators
