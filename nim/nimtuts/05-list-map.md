@@ -288,6 +288,109 @@ template applyIt(varSeq, op: untyped)
 template newSeqWith(len: int; init: untyped): untyped
 ```
 
+# Table aka Hashtable, Dict, Associative Array, Map
+
+A table is implemented as an array of tuples.
+`let d = [("k1", "v1"), ("k2", "v2"), ("k3", "v2")]`
+
+
+With syntactical sugar:
+```nim
+import tables
+
+var d = {
+    "k1": "v1",
+    "k2": "v2",
+    "k3": "v3"
+}.toTable()         # This creates a table (not a table ref)
+
+doAssert d["k1"] == "v1"
+doAssert d["k2"] == "v2"
+
+d["k2"] = "v2.0"
+
+doAssert d["k2"] == "v2.0"
+
+d["k4"] = "v4"
+
+doAssert d["k4"] == "v4"
+```
+
+**Tableref and Table**
+
+```nim
+import tables
+
+var
+  t = {1: "one", 2: "two"}.toTable()        # creates a Table
+  tref = {1: "one", 2: "two"}.newTable()    # creates a TableRef
+
+var tcopy = t                               # `tcopy` is copy of `t`
+                                            # changes in `t` won't reflect `tcopy`
+
+var trefCopy = tref                         # `trefCopy` and `tref` are same
+                                            # changes in `t` will reflect in `tcopy`
+```
+
+```nim
+import tables
+from sequtils import zip
+
+let
+    names = ["John", "Paul", "George", "Ringo"]
+    years = [1940, 1942, 1943, 1940]
+
+var beatles = initTable[string, int]()
+
+for pairs in zip(names, years):
+    let (name, birthYear) = pairs
+    beatles[name] = birthYear
+
+echo beatles
+# {"George": 1943, "Ringo": 1940, "Paul": 1942, "John": 1940}
+
+var beatlesByYear = initTable[int, seq[string]]()
+
+for pairs in zip(years, names):
+    let (birthYear, name) = pairs
+    if not beatlesByYear.hasKey(birthYear):
+        beatlesByYear[birthYear] = @[]
+    beatlesByYear[birthYear].add(name)
+
+echo beatlesByYear
+# {1940: @["John", "Ringo"], 1942: @["Paul"], 1943: @["George"]}
+```
+
+Apart from primitive types like `string` and `int` any other key must implement a `proc hash` and `proc ==`
+If you use `object` type as keys, then `==` is implemented by the compiler, it does a field by field comparison.
+
+The `hashes` module implements 2 helper operators:
+- `!&` proc used to start or mix a hash value
+- `!$` proc used to finish the hash value.
+
+```nim
+import tables, hashes
+
+type
+  Person = object
+    firstName, lastName: string
+
+proc hash(x: Person): Hash =
+  result = x.firstName.hash !& x.lastName.hash
+  result = !$result
+
+var
+  gender = initTable[Person, string]()      # initialize table
+  p1 = Person(firstName: "Devendra", lastName: "Rane")
+  p2 = Person(firstName: "Abhiruchi", lastName: "Chand")
+
+gender[p1] = "Male"
+gender[p2] = "Female"
+
+echo gender
+# Output: {(firstName: "Abhiruchi", lastName: "Chand"): "Female", (firstName: "Devendra", lastName: "Rane"): "Male"}
+```
+
 # BitSets
 
 Set operations are available and implemented using `bitsets`. They are ordinal types hence a set cannot have more than 2^16 elements. However, they implement a lot cool set operations (like Python set type)
