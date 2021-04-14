@@ -7,6 +7,10 @@ type
     Person = tuple      # type representing a person
         name: string    # a person consists of a name
         age: int        # and an age
+
+# Shorter notation
+
+type Department = tuple[name: string, head: string]
 ```
 
 # Arrays

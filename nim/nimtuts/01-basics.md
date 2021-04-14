@@ -112,7 +112,27 @@ let r = r"\b\n\r[A-Z]"  # escape characters are not interpreted
 
 String can be treated a sequences (more on this later)
 
-General string manipulation
+**String formatting**
+
+```nim
+import strutils
+
+let name = "Devendra"
+let age = 39
+
+echo format("My name is $1 and age is $2", name, age)
+```
+
+```nim
+import strformat
+
+let name = "Devendra"
+let age = 39
+
+echo fmt"My name is {name} and age is {age}"
+```
+
+**General string manipulation**
 
 ```nim
 import strutils     # all most used string utils
