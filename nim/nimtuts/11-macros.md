@@ -5,9 +5,7 @@ Of all the reasons to love Nim, the amazing DSL creation capabilities using macr
 The best way to learn this is David's youtube channel:
 
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/97egpJPhPWs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![Nim metaprogramming 1](http://img.youtube.com/vi/97egpJPhPWs/0.jpg)](http://www.youtube.com/watch?v=97egpJPhPWs "Nim Meta programming - 1")
 
 
-
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/97egpJPhPWs" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> 
+[![Nim metaprogramming 2](http://img.youtube.com/vi/GJpn6SfR_1M/0.jpg)](http://www.youtube.com/watch?v=GJpn6SfR_1M "Nim Meta programming - 2")
