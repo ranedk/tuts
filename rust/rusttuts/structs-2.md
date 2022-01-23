@@ -17,7 +17,8 @@ let user1 = User {
 };
 
 user1.email = String::from("anotheremail@example.com");
-println!("user1={:?}", user1);          // the syntax {:?} helps print the struct properly using #[derive(Debug)]
+println!("user1={:?}", user1);          // the syntax {:?} helps print the struct
+                                        // properly using #[derive(Debug)]
 
 let email = String::from("admin");
 let username = String::from("admin@gmail.com");
@@ -87,7 +88,8 @@ fn main() {
     println!("Can rect2 hold rect3? {}", rect2.can_hold(&rect3));
 }
 ```
-NOTE: It doesn't matter if the struct method is defined on `self`, `&self`, `mut self` or `&mut self`. Calling `rect.area()` will do the right thing. However, the parameter passed must be of the right type `rect2.can_hold(&rect3)` CANNOT be written as `rect2.can_hold(rect3)`
+
+> NOTE: It doesn't matter if the struct method is defined on `self`, `&self`, `mut self` or `&mut self`. Calling `rect.area()` will do the right thing. However, the parameter passed must be of the right type `rect2.can_hold(&rect3)` CANNOT be written as `rect2.can_hold(rect3)`
 
 **If original variable is defined as mutable `let mut rect = Rectangle {width: 10, height: 20}`. Then for defining methods**
 

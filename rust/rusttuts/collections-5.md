@@ -181,6 +181,7 @@ let s3 = &s[0..9]           // PANIC: Runtime error, 9 is between character boun
 ```
 
 So the right way to query strings is:
+
 ```rust
 for c in "नमस्ते".chars() {
     println!("{}", c);      // prints न म स् ते on separate lines
@@ -214,6 +215,7 @@ let scores: HashMap<_, _> = teams   // _ works for type, compiler infers
 ```
 
 Keys can be passed by value or by reference. Hashmap owns the ownership is passed directly
+
 ```rust
 let s0 = String::from("sunday");
 let s1 = String::from("monday");
@@ -243,10 +245,11 @@ print("{:?}", h)
 ```
 
 > How hashmaps behave:
-> 1) The key can either be a reference or a value, not both.
-> 2) Lookups are always done with reference.
-> 3) Primitive types like Integers are copied and hashmap doesn't own it.
-> 4) Lookups are compared by value (hash value), even if they are created using reference or value
+
+> 1. The key can either be a reference or a value, not both.
+> 2. Lookups are always done with reference.
+> 3. Primitive types like Integers are copied and hashmap doesn't own it.
+> 4. Lookups are compared by value (hash value), even if they are created using reference or value
 
 ### Loop hashmap
 ```rust
@@ -271,7 +274,8 @@ println!("{:?}", map);
 
 # Box types
 
-- If stack allocated types (e.g. primitive types) are to be allocated in heap, with a pointer to them, then use Box types:
+If stack allocated types (e.g. primitive types) are to be allocated in heap, with a pointer to them, then use Box types:
+ 
 ```rust
 #[derive(Debug)]
 struct Point {
@@ -307,6 +311,7 @@ Boxed instance can call class methods of the boxed class.
 ## Use cases for Box<T>
 
 1) To create a recursive type, the rust compiler believes they are of infinite size. So use a boxed type as:
+
 ```rust
 struct Node<T> {
     val: T,
@@ -315,14 +320,16 @@ struct Node<T> {
 ```
 
 2) When you are returning a `Trait` (interface! remember), from a function, you cannot just say `fn func() -> MyTrait` or `fn func() -> &MyTrait`. It doesn't make sense in rust, you have to say either of the following:
-    ```rust
-    fn get_figure(a: i32, b: i32) -> impl TwoDimension {
-        // ...
-    }
-    ```
-    This is called a static dispatch. Meaning that rust compiler finds all the types for which the above have been called and generates the functions with all those types during compile time.
 
-    Also, you cannot return 2 different concrete types from the functions. All return types of the functions MUST be of the same type (because its compile time and compiler must be sure).
+```rust
+fn get_figure(a: i32, b: i32) -> impl TwoDimension {
+    // ...
+}
+```
+    
+This is called a static dispatch. Meaning that rust compiler finds all the types for which the above have been called and generates the functions with all those types during compile time.
+
+Also, you cannot return 2 different concrete types from the functions. All return types of the functions MUST be of the same type (because its compile time and compiler must be sure).
     `impl TwoDimension` checks for concrete type implementing the trait
 
     ```rust
@@ -330,9 +337,9 @@ struct Node<T> {
         // ...
     }
     ```
-    The above is called dynamic dispatche, meaning that rust will not do anything in compile time and resolve everything in runtime. Also, you can return different types of concrete types implementing the same trait.
-    `dyn TwoDimension` checks for dynamic type implementing the trait
 
-    Dynamic dispatch is slower than Static dispatch (don't care so much about this yet)
+The above is called dynamic dispatch, meaning that rust will not do anything in compile time and resolve everything in runtime. Also, you can return different types of concrete types implementing the same trait.
+`dyn TwoDimension` checks for dynamic type implementing the trait.
+Dynamic dispatch is slower than Static dispatch (_don't care so much about this yet_)
 
 3) For performance if T is large and is being moved around a lot, using a Box<T> instead will avoid doing big `memcpys` (memory copy)

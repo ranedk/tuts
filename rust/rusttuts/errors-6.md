@@ -1,5 +1,9 @@
 # Error handling
 
+Rust has no `try` `catch`. There are more idiomatic ways to do error handling using external crates. More about those in the idiomatic section.
+
+2 type of errors:
+
 - Non-recoverable error `panic!`
 - Recoverable error `Result<T, E>` (e.g. file not found before reading)
 
@@ -14,9 +18,10 @@ To get complete traceback in case in panic
 $ RUST_BACKTRACE=1 cargo run
 ```
 
-## Result<T, E>
+## Result\<T, E>
 
 The internal implementation of `Result`
+
 ```rust
 enum Result<T, E> {
     Ok(T),
@@ -93,23 +98,29 @@ Other shortcuts:
 
 - `unwrap_or_default`:
     - Returns the contained value or a default. Consumes the self argument then, if Ok, returns the contained value, otherwise if Err, returns the default value for that type.
-    - Code:
-    ```rust
-        let good_year_from_input = "1909";
-        let bad_year_from_input = "190blarg";
-        let good_year = good_year_from_input.parse().unwrap_or_default();
-        let bad_year = bad_year_from_input.parse().unwrap_or_default();
 
-        assert_eq!(1909, good_year);
-        assert_eq!(0, bad_year);
-    ```
+
+### Assert
+    
+```rust
+    let good_year_from_input = "1909";
+    let bad_year_from_input = "190blarg";
+    let good_year = good_year_from_input.parse().unwrap_or_default();
+    let bad_year = bad_year_from_input.parse().unwrap_or_default();
+
+    assert_eq!(1909, good_year);
+    assert_eq!(0, bad_year);
+```
 
 ### Raise error inside a function
+
+Since there is no `try` `catch`, functions need to define the particular error or the trait of errors they may throw. 
+
 ```rust
 
 // The regular boring way
-fn read_username_from_file() -> Result<String, io::Error> {     // output signature
-                                                                // is result with error
+fn read_username_from_file() -> Result<String, io::Error> {  // output signature
+                                                             // is result with error
     let f = File::open("hello.txt");
 
     let mut f = match f {
@@ -145,37 +156,46 @@ fn read_username_from_file() -> Result<String, io::Error> {
 
 > Note: The `?` stuff works only if methods don't panic, but return `Result<T, E>`
 
-Interesting, consider the following snippet:
+The `try` `catch` are implemented in 2 ways:
+
 ```rust
-    match f.read_to_string(&mut s) {
-        Ok(_) => Ok(s),
-        Err(e) => Err(e),                       // this returns, then match returns
-    }
+match f.read_to_string(&mut s) {
+    Ok(_) => Ok(s),
+    Err(e) => Err(e),                       // this returns, then match returns
+}
 ```
 The shortcut to this is:
+
 ```rust
 if let Err(e) = f.read_to_string(&mut s) {
     println!("Application error: {}", e);
 }
 ```
 
-#### Particularly for reading a file, you don't have to do the above. you can simply
+> Note:Particularly for reading a file, you don't have to do the above. you can simply
 ```rust
 fs::read_to_string("hello.txt")
 ```
 
 ## How to make a function return Result, None and Error
 
-This is pretty cool
+To do this, we use Result with Option. `Result<Option<T>, Err>`. This caters to:
+
+1.  None -> Result(None, None)
+2.  Value -> Result(Value, None)
+3.  Error -> Result(None, Err)
+
 ```rust
 use std::num::ParseIntError;
 
 fn double_first(vec: &Vec<&str>) -> Result<Option<i32>, ParseIntError> {
-    let opt = vec.first().map(|first| {
+    let opt = vec.first().map(|first| {       
         first.parse::<i32>().map(|n| 2 * n)
     });
-
+    // vec.first returns a Option<E>, map converts it to Option<U>
+    // parse returns Result<i32, ParseIntError>
     opt.map_or(Ok(None), |r| r.map(Some))
+    // opt will be Result<>
 }
 
 
@@ -209,6 +229,7 @@ fn main() {
 Interesting utility functions on `Result` instances:
 
 - `map`: Maps a `Result<T, E>` to `Result<U, E>` by applying a function to a contained `Ok` value, leaving an `Err` value untouched
+
 ```rust
 let line = "1\n2\n3\n4\n";
 
@@ -221,6 +242,7 @@ for num in line.lines() {
 ```
 
 - `map_or`: Applies a function to the contained value (if any), or returns the provided default (if not)
+
 ```rust
 let result_is_ok: Result<_, &str> = Ok("foo");
 assert_eq!(result_is_ok.map_or(42, |v| v.len()), 3);
@@ -232,6 +254,7 @@ assert_eq!(result_is_err.map_or(42, |v| v.len()), 42);
 ```
 
 - `map_err`: Maps a `Result<T, E>` to `Result<T, F>` by applying a function to a contained `Err` value, leaving an `Ok` value untouched
+
 ```rust
 fn stringify(x: u32) -> String { format!("error code: {}", x) }
 
@@ -243,6 +266,7 @@ assert_eq!(x.map_err(stringify), Err("error code: 13".to_string()));
 ```
 
 - `map_or_else`: Maps a `Result<T, E>` to `U` by applying a function to a contained `Ok` value, or a fallback function to a contained `Err` value.
+
 ```rust
 let k = 21;
 

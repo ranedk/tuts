@@ -6,25 +6,28 @@ Brilliant for I/O related tasks, websockets, http-crawlers etc. Very few keyword
 Basic visual code setup is good enough for efficient coding. No need to anything Jetbrains.
 
 ## The Bad
-Best practices and some corners are difficult to get right and will require experience.
+Best practices and some corners are difficult to get right and will require experience. Idiomatic go is tricky and requires effort.
 
 ## Lets begin
 
 ### Installation:
+Download latest package or installer from `https://go.dev/dl/`
+
+For Linux
 ```bash
-$ sudo tar -xvf go1.12.2.linux-amd64.tar.gz
-# (get the latest version from https://golang.org/dl/)
+$ sudo tar -xvf <latest tar>
+```
 
-$ sudo mv go /usr/local
-
-$ export GOROOT=/usr/local/go
+Put the following in your zshrc or bashrc
+```sh
 # this is where all go binaries and compiler go
+export GOROOT=/usr/local/go
 
-$ export GOPATH=$HOME/Projects/Go
 # this is where go libraries and dependencies go
+export GOPATH=$HOME/Projects/Go
+```
 
-# put this in your zshrc (or bashrc)
-
+```sh
 $ go version  // verify installation
 $ go env  // verify installation
 ```
@@ -66,7 +69,7 @@ Hello, 世界
 The time is 2019-05-09 19:01:55.717598856 +0530 IST m=+0.000505962
 ```
 
-- All public functions, which can be used outside the module start with CAPITAL letters
+Note:All public functions, which can be used outside the module start with CAPITAL letters
 
 #### Functions
 ```go

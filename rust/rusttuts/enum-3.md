@@ -100,17 +100,19 @@ fn value_in_cents(coin: Coin) -> u8 {
 }
 ```
 
-
 # The Option Enum (so much better than Null values)
 This idea comes from functional languages, but has gained lot of attention being a nice idea.
 To avoid null values, wrap around a possible null value into a Option enum, so we always manage null values effectively.
+
 ```rust
 enum Option<T> {
     Some(T),
     None,
 }
 ```
+
 Usage:
+
 ```rust
 let x: i8 = 5;
 let y: Option<i8> = Some(5);
@@ -119,6 +121,7 @@ let sum = x + y;    // ERROR: Cannot add int and option type
 ```
 
 Option is always checked with match and then used (as below)
+
 ```rust
 fn plus_one(x: Option<i32>) -> Option<i32> {
     match x {
@@ -129,6 +132,7 @@ fn plus_one(x: Option<i32>) -> Option<i32> {
 ```
 
 # Default case
+
 ```rust
 let some_u8_value = 0u8;
 match some_u8_value {
@@ -143,6 +147,7 @@ match some_u8_value {
 # if - let
 
 If the match only has one thing to match and ignore everything else
+
 ```rust
 value = Some(7);
 
@@ -150,17 +155,20 @@ if let Some(v) = value {
     println!("value is {}", v);
 }
 ```
-Read this as: if Some(v) matches value, then ...
-This is tricky to understand, and easy to get it wrong (without getting compilation error!!)
-E.g.
-```rust
-    let value: Option<u32> = Some(10);
-    let some_other_value = 100;
 
-    if let some_other_value = value {
-        println!("value");
-    }
+Read this as: if Some(v) matches value, then ...
+This is tricky to understand, and easy to get it wrong (**without getting compilation error!!**)
+E.g.
+
+```rust
+let value: Option<u32> = Some(10);
+let some_other_value = 100;
+
+if let some_other_value = value {
+    println!("value");
+}
 ```
+
 This will always print "value". Because this starts a new scope with `some_other_value` getting its value from `value` variable.
 
 ```rust
