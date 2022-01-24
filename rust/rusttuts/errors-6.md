@@ -179,11 +179,11 @@ fs::read_to_string("hello.txt")
 
 ## How to make a function return Result, None and Error
 
-To do this, we use Result with Option. `Result<Option<T>, Err>`. This caters to:
+To do this, we use Result (Ok|Err) with Option(Some, None). `Result<Option<T>, Err>`. This caters to:
 
-1.  None -> Result(None, None)
-2.  Value -> Result(Value, None)
-3.  Error -> Result(None, Err)
+1.  None ->  Ok(None)
+2.  Value -> Ok(Some(Value))
+3.  Error -> Err (ParseIntError is type-of Err)
 
 ```rust
 use std::num::ParseIntError;
@@ -192,10 +192,21 @@ fn double_first(vec: &Vec<&str>) -> Result<Option<i32>, ParseIntError> {
     let opt = vec.first().map(|first| {       
         first.parse::<i32>().map(|n| 2 * n)
     });
-    // vec.first returns a Option<E>, map converts it to Option<U>
-    // parse returns Result<i32, ParseIntError>
+    // vec.first returns a Option<E>, first().map converts it to Option<U>
+    // E here is &str, U is Result<i32, Err>
+    // parse returns Result(Ok(Value) or ParseIntError)
+    // parse.map keeps the error if it exists, it changes only the value 
+    
     opt.map_or(Ok(None), |r| r.map(Some))
-    // opt will be Result<>
+    // opt is Option<Result<i32, Err>>
+    // map_or gives default if opt is None, or applies lambda on Some
+    // r.map maps Result<T, E> to Result<U, E> without touching the error, only operates on Err
+    
+    // if opt is None (i.e. None), this will return Ok(None)
+    // if opt is Err (i.e. Some(Result(None, ParseIntError))
+         // then this will return Result(None, ParseIntError)
+    // if everything is fine, opt will me Some(Result(Value, None))
+        // then this will return Result(Some(Value), None))
 }
 
 
