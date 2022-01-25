@@ -66,7 +66,7 @@ fn main() {
     let p3 = both_integer.mixup(both_float);
 }
 
-// ----------------------------------------
+// ---------------------------------------
 
 // Enum
 enum Result<T, E> {
@@ -248,7 +248,7 @@ fn largest<T: PartialOrd>(list: &[T]) -> &T {   // takes and return references
     let mut largest = &list[0];
 
     for item in list.iter() {
-        if item > largest {             // although both a references, rust always compares by value
+        if item > largest {             // although both are references, rust always compares by value
             largest = item;
         }
     }
