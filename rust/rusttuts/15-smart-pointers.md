@@ -2,20 +2,21 @@
 
 A basic vanilla pointer is the one which holds a reference to a memory holding the actual value. So `&a` is the pointer reference to the location `a` where data is stored.
 
-**Smart pointers** also hold meta-data with them to manage more complex tasks. E.g. a Reference counting smart pointer will hold the number of owners of the data, and when the number drops to zero, make it available for garbage collection or deletion. Its available in multiple languages.
+**Smart pointers** also hold meta-data with them to manage more complex tasks. E.g. a Reference counting smart pointer will hold the number of owners of the data, and when the number drops to zero, make it available for garbage collection or deletion. Its available in multiple languages (like C++).
 
 `String` and `Vec<T>` in rust are _smart pointers_ because they hold the meta-data of how many elements are a part of the data-structure. `String` manages valid utf-8 characters using some meta-data.
 
-In Rust, which uses the concept of ownership and borrowing, an additional difference between references and smart pointers is that references are pointers that only borrow data; in contrast, in many cases, smart pointers own the data they point to.
+In Rust, which uses the concept of ownership and borrowing, an additional difference between references and smart pointers is that references are pointers that only borrow data; in contrast, **in many cases, smart pointers own the data they point to.**
 
 Smart pointers implemented as structs, implement the `Deref` and `Drop` traits.
-    - The Deref trait allows you can write code that works with either references or smart pointers.
-    - The Drop trait allows you run code when an instance of the smart pointer goes out of scope.
+
+- The Deref trait allows you can write code that works with either references or smart pointers.
+- The Drop trait allows you run code when an instance of the smart pointer goes out of scope.
 
 ## Box types
 Box types discussed in collections and generics are Smart pointers which help you to put data in heap. It implements `Deref` and `Drop` to help pass `Box` type as a reference to the data and delete it when it goes out of scope.
 
-## Understanding `Deref`
+## Understanding Deref
 ```rust
 // Lets implement a basic MyBox type
 struct MyBox<T>(T);
@@ -37,9 +38,7 @@ impl<T> Deref for MyBox<T> {
     }
 }
 
-
 // Usage:
-
 let x = 5;
 let y = MyBox::new(x);
 
@@ -49,6 +48,7 @@ assert_eq!(5, *y);  // This works because Deref trait.
                     // by calling *(y.deref())
 ```
 The deref operator works with 3 cases:
+
 - From &T to &U when T: Deref<Target=U>
 - From &mut T to &mut U when T: DerefMut<Target=U>
 - From &mut T to &U when T: Deref<Target=U>
@@ -69,7 +69,7 @@ impl Drop for CustomSmartPointer {
 ```
 The `drop` method is called directly by the rust compiler. You are **not allowed** to call the method. Instead, you have to call `std::mem::drop` method to drop objects.
 
-# Reference Counted Smart Pointer `Rc<T>`
+# Reference Counted Smart Pointer Rc\<T>
 
 Use case is to have multiple owners of a single instance and drop it when number of owners becomes zero.
 Only used for single threaded scenarios.
@@ -77,6 +77,7 @@ Only used for single threaded scenarios.
 ## Immutable reference
 
 This one is easy since immutable.
+
 ```rust
 #[derive(Debug)]
 enum List {
@@ -92,8 +93,8 @@ fn main() {
     let a = Rc::new(Cons(5, Rc::new(Cons(10, Rc::new(Nil)))));
     println!("count after creating a = {}", Rc::strong_count(&a));
 
-    let b = Cons(3, Rc::clone(&a));         // Clones ownership to b, 2 owners
-                                            // This wont work if instead of Rc we are using Box
+    let b = Cons(3, Rc::clone(&a)); // Clones ownership to b, 2 owners
+                                    // This wont work if instead of Rc we are using Box
     println!("count after creating b = {}", Rc::strong_count(&a));
 
     {
@@ -104,15 +105,16 @@ fn main() {
     println!("count after c goes out of scope = {}", Rc::strong_count(&a));
 }
 ```
-## Mutable reference using `RefCell<T>`
+
+## Mutable reference using RefCell\<T>
 
 The rust compiler is always trying to do things strictly. This might not work for some cases where we know something that the compiler doesn't. For e.g.
 
-1) When programming a low hardware level, your hardware may provide you a memory address to mutate directly, this is unsafe, but the rust compiler doesn't know it.
-2) Interacting with code written in another language (like C,C++ etc.). You assume and tell the compiler that its safe to use it and the developer has checked for safety.
-3) When using concurrency primitives, if you are "logically" making sure that each thread gets mutable reference to a pointer after all checks have been made. The compiler doesn't know that the "logic" is making the code safe. So you mark the code as unsafe to take the responsibility of safety.
-4) Rarely, if there are patterns which the rust borrower-checker is not able to understand in terms of safety and you want to take the onus of safety.
-5) Very very rarely, for performance optimizations.
+1. When programming a low hardware level, your hardware may provide you a memory address to mutate directly, this is unsafe, but the rust compiler doesn't know it.
+2. Interacting with code written in another language (like C,C++ etc.). You assume and tell the compiler that its safe to use it and the developer has checked for safety.
+3. When using concurrency primitives, if you are "logically" making sure that each thread gets mutable reference to a pointer after all checks have been made. The compiler doesn't know that the "logic" is making the code safe. So you mark the code as unsafe to take the responsibility of safety.
+4. Rarely, if there are patterns which the rust borrower-checker is not able to understand in terms of safety and you want to take the onus of safety.
+5. Very very rarely, for performance optimizations.
 
 Generally, all these are avoidable. PLEASE AVOID AT CALL COSTS.
 

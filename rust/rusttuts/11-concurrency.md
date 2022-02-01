@@ -2,6 +2,7 @@
 
 ## Threading
 Rust tries to have ZERO runtime, so it has no green threads. So it uses os threads:
+
 ```rust
 use std::thread;
 use std::time::Duration;
@@ -28,7 +29,7 @@ use std::thread;
 fn main() {
     let v = vec![1, 2, 3];
 
-    let handle = thread::spawn(move || {          // v in the environment will be moved to the thread now
+    let handle = thread::spawn(move || {    // v in the environment will be moved to the thread now
         println!("Here's a vector: {:?}", v);
     });
 
@@ -62,6 +63,7 @@ fn main() {
 
 ## Multiple transmitter
 You can clone transmitters
+
 ```rust
 let (tx, rx) = mpsc::channel();
 

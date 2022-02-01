@@ -1,6 +1,7 @@
 # Tests
 
 You can write tests annotate the with `#[cfg(test)]` and make all functions visible to the test module. e.g.
+
 ```rust
 pub fn greeting(name: &str) -> String {
     format!("Hello {}!", name)
@@ -17,6 +18,7 @@ mod tests {
     }
 }
 ```
+
 ## Basic assert macros
 
 - `assert!`
@@ -24,6 +26,7 @@ mod tests {
 - `assert_ne!`
 
 ## Check Panic
+
 ```rust
 #[cfg(test)]
 mod tests {

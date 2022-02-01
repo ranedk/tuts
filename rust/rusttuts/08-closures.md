@@ -24,6 +24,7 @@ let add_one_v3 = |x|             x + 1 ;
 ```
 
 Lets implement a `struct` which caches a closure output on a cool way:
+
 ```rust
 struct Cacher<T>                // Cacher implements generic type T
     where T: Fn(u32) -> u32     // T is a function/closure, takes u32 give out u32
@@ -58,6 +59,7 @@ impl<T> Cacher<T>
 ```
 
 Unlike functions, closure can capture local environments. Functions have no access to local variables. Closure have multiple ways to capture local environment variables:
+
 ```rust
 fn main() {
     let x = 4;
@@ -71,6 +73,7 @@ fn main() {
 ```
 
 Closures borrow local variables mutably or immutably by default depending on the use case:
+
 ```rust
 let mut l = vec![1,2,3,4];
 let mut doubler = || {          // immutable borrow happens here
@@ -93,6 +96,7 @@ Hence, Closures borrow in 3 ways using:
 This is more of a guideline and rust will find the least restrictive way to borrow.
 
 To define generic closures, the traits Fn, FnMut and FnOnce are used as follows:
+
 ```rust
 // A function which takes a closure as an argument and calls it.
 // <F> denotes that F is a "Generic type parameter"
@@ -102,6 +106,7 @@ fn apply<F>(f: F) where F: FnOnce() {
 ```
 
 Returning closures:
+
 ```rust
 // Returns a function that adds `y` to its input
 fn make_adder_function(y: i32) -> impl Fn(i32) -> i32 {

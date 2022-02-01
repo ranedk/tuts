@@ -1,24 +1,28 @@
 # Iterator trait
+
 Usage:
+
 ```rust
 let v1 = vec![1, 2, 3];
 
-for val in v1.iter {
+for val in v1.iter() {   // iter gives &T
     println!("Got: {}", val);
 }
 ```
 The `iterator` trait looks like:
+
 ```rust
 pub trait Iterator {
     type Item;
 
     fn next(&mut self) -> Option<Self::Item>;
 
-    // methods with default implementations elided
+    // methods with default implementations
 }
 ```
 
 Iterators are often used with __iterator adaptors__ like `map`, `filter`, which are lazy, so need to be collected. e.g.
+
 ```rust
 let v1: Vec<i32> = vec![1, 2, 3];
 
@@ -28,6 +32,7 @@ assert_eq!(v2, vec![2, 3, 4]);
 ```
 
 `filters` can take closures which capture local environment.
+
 ```rust
 #[derive(PartialEq, Debug)]
 struct Shoe {
@@ -36,8 +41,8 @@ struct Shoe {
 }
 
 fn shoes_in_my_size(shoes: Vec<Shoe>, shoe_size: u32) -> Vec<Shoe> {
-    shoes.into_iter()
-        .filter(|s| s.size == shoe_size)                // shoe size is accessible here
+    shoes.into_iter()                       // into_iter gives T, &T, &mut T depending on context
+        .filter(|s| s.size == shoe_size)    // shoe size is accessible here
         .collect()
 }
 
@@ -62,6 +67,7 @@ fn filters_by_size() {
 ```
 
 ## Creating iterators using the trait
+
 ```rust
 
 struct Counter {
@@ -90,6 +96,7 @@ impl Iterator for Counter {
 ```
 
 ### Piping iterator adaptors
+
 ```rust
 fn using_other_iterator_trait_methods() {
     let sum: u32 = Counter::new().zip(Counter::new().skip(1))       // behaves like python zip

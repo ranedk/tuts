@@ -43,6 +43,7 @@ To create the document `cargo doc --open`
 ### Documenting a crate
 
 If you want to document the library or the crate, you need to use `//!` and put this at the top of the crate
+
 ```rust
 //! # My Crate
 //!
@@ -79,9 +80,11 @@ pub mod utils {
 Multiple related packages that are developed in tandem, like libraries or apps inside a big project
 
 **Create a project**
-`mkdir add`
+
+`$ mkdir add`
 
 **Create file** `Cargo.toml`
+
 ```
 [workspace]
 
@@ -90,10 +93,13 @@ members = [
 ]
 ```
 **Create workspace for main binary**
+
 `adder` will host the binary (main entry point) code
+
 `cargo new adder`
 
 Project structure
+
 ```
 ├── Cargo.lock
 ├── Cargo.toml
@@ -106,6 +112,7 @@ Project structure
 
 **Create workspace for library**
 In file `Cargo.toml`
+
 ```
 [workspace]
 
@@ -120,7 +127,9 @@ add-one = { path = "../add-one" }
 `cargo new add-one --lib`
 
 **Workspace dependencies inside workspace Cargo.toml**
+
 In file `add-one/Cargo.toml`, put dependencies:
+
 ```
 [dependencies]
 
@@ -128,10 +137,12 @@ rand = "0.3.14"
 ```
 
 **Run main project**
+
 `cargo run -p adder`
 
 
 ### Install cargo binaries in the system
+
 `cargo install`
 
 This way you can install binaries like ripgrep using cargo

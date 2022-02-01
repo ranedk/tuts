@@ -17,6 +17,7 @@ fn main() {
 ```
 ## With arguments
 The arguments of a macro are prefixed by a dollar sign $ and type annotated with a designator. E.g.
+
 ```rust
 macro_rules! create_function {
     // creates a function named `$func_name`.
@@ -46,6 +47,7 @@ macro_rules! print_result {
 ```
 
 There are many other desginators in rust. e.g.:
+
 - block
 - expr is used for expressions
 - ident is used for variable/function names
@@ -81,6 +83,7 @@ macro_rules! test {
 
 // Usage:
 test!(1i32 + 1 == 2i32; and 2i32 * 2 == 4i32);
+// prints: "1i32 + 1 == 2i32" and "2i32 * 2 == 4i32" is true
 ```
 
 ### Repeating patterns in template

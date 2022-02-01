@@ -1,4 +1,5 @@
-## An attribute is metadata applied to some module, crate or item. This metadata can be used to/for:
+## Attributes
+An attribute is metadata applied to some module, crate or item. This metadata can be used to/for:
 
 - Conditional compilation of code
 - Set crate name, version and type (binary or library)
@@ -10,6 +11,7 @@
 
 
 e.g.
+
 ```rust
 #[attribute(value, value2)]     // this attribute affects the module after this
 OR
@@ -30,6 +32,7 @@ Disable lint `#[allow(dead_code)]`
 
 ## cfg
 Config driven attributes:
+
 ```rust
 #[cfg(target_os = "linux")]
 fn are_you_on_linux() {
@@ -45,6 +48,7 @@ fn are_you_on_linux() {
 }
 ```
 **Custom CFG**
+
 ```rust
 #[cfg(some_condition_1)]
 fn conditional_function() {
@@ -63,8 +67,11 @@ fn main() {
 Compile the above with `rustc --cfg some_condition_1 custom.rs && ./custom`
 to get first function to compile
 
+This can be very useful to compile with flags to induce behvaior in the compiled code (e.g. loggers based on environment)
+
 
 ## Derive traits via attributes
+
 The compiler is capable of providing basic implementations for some traits via the `#[derive]` attribute. These traits can still be manually implemented if a more complex behavior is required.
 
 The following is a list of derivable traits:
