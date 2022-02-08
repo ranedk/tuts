@@ -14,7 +14,7 @@ If you have covered all the other Rust concepts, this chapter convers most commo
 - Always use `&str` for function arguments instead of `&String`, `&[T]` instead of `&Vec<T>` and `&T` over `&Box<T>` for more flexibility in calling function.
 - `format!` to add and format strings instead of `push_str` (which is faster, but looks bad) or `+` operator
 - `::new` static method as constructor (the `Default` trait if the implementation is a default)
-
+- Return `impl Trait` or `Box<dyn Trait>` when you need polymorphism in return types.
 
 ## Serialization/Deserialization using Serde
 
