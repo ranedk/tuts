@@ -255,17 +255,43 @@ Consider the following:
     let slice = &mut a[3..7];
 
     // We have created 2 ways to mutate the list, one via `a` and the other via `slice`
+    
+    // At any given point of time, both the instances CANNOT be active
 
-    // Only one of the below lines will be valid now, NOT BOTH (uncomment and check)
+    // Once the rest of the code doesn't use the variable, it automatically gets dropped.
 
-    // slice[2] = 100;
-    // a[2] = 200;
+    /*
+    This wont work, since `a` and `slice` are changing same memory and aren't getting dropped anywhere in the middle
 
-    // println! means that the variable is in use and is in scope, depending on the above lines
-    // the following lines will be valid or not. uncomment and check
+    a[2] = 200;
+    slice[2] = 100;
 
-    //println!("after a={:?}", a);
-    //println!("after slice={:?}", slice);
+    println!("after a={:?}", a);
+    println!("after slice={:?}", slice);
+
+    */
+
+
+    /*
+    This will work, `slice` is dropped when `a` is changing memory
+
+    slice[2] = 100;
+    a[2] = 200;
+
+    println!("after a={:?}", a);
+    */
+
+    /*
+    This won't work, `slice` is used in the `println!` and doesn't get dropped, when `a` is changing memory
+
+    slice[2] = 100;
+    a[2] = 200;
+
+    println!("after a={:?}", a);
+    println!("after slice={:?}", slice);
+    */
 ```
 
-NOTE: Rust doesnt let you compare references, it instead ALWAYS compares by value. So `a > b` would work and so would `*a > *b` since both imply the same thing. Its always better to write `a > b`. Its rusty! However, you cannot compare a reference to a value, both have to be values or both have to be references.
+>NOTE: Its important to understand when a variable gets dropped. If variable is dropped and after that only one way to mutate remains, its valid.
+
+>NOTE: Rust doesnt let you compare references, it instead ALWAYS compares by value. So `a > b` would work and so would `*a > *b` since both imply the same thing. Its always better to write `a > b`. Its rusty! However, you cannot compare a reference to a value, both have to be values or both have to be references.
