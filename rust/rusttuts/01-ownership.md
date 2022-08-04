@@ -247,50 +247,48 @@ let a = [1, 2, 3, 4, 5];
 
 let slice = &a[1..3]        Slice is of type &[i32]
 ```
-NOTE: For slicing and general ownership guideline. At any point of time, there should only be one available way to modify a variable.
+
+## RULES OF ENGAGEMENT
+
+> NOTE: You can have as many immutable references as you want and NO mutable reference
+> You can have only one mutable reference but then, NO immutable references
+
+> Borrowing rules enforce that only variable is allowed to mutate the data at a time. **If the mutable borrow is no longer used**, then we can freely mutate the original variable, or use immutable borrows of it.
 
 Consider the following:
 ```rust
-    let mut a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-    let slice = &mut a[3..7];
+    let mut a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];    // a is mutable
+    let slice = &mut a[3..7];                       // slice is mutable borrow
 
-    // We have created 2 ways to mutate the list, one via `a` and the other via `slice`
-    
-    // At any given point of time, both the instances CANNOT be active
+    // As per rule:
+    // We cannot create any immutable references as long as slice is active (not dropped)
+    // We cannot create any more mutable references as long as slice is active
 
     // Once the rest of the code doesn't use the variable, it automatically gets dropped.
 
     /*
-    This wont work, since `a` and `slice` are changing same memory and aren't getting dropped anywhere in the middle
+    This wont work, since `slice` doesn't get dropped till the last line and `a` is still changing the data
 
     a[2] = 200;
     slice[2] = 100;
 
     println!("after a={:?}", a);
     println!("after slice={:?}", slice);
-
     */
 
 
     /*
-    This will work, `slice` is dropped when `a` is changing memory
+    This will work, `slice` is dropped (as soon as its not used) when `a` is changing memory
 
     slice[2] = 100;
     a[2] = 200;
 
     println!("after a={:?}", a);
-    */
-
-    /*
-    This won't work, `slice` is used in the `println!` and doesn't get dropped, when `a` is changing memory
-
-    slice[2] = 100;
-    a[2] = 200;
-
-    println!("after a={:?}", a);
-    println!("after slice={:?}", slice);
     */
 ```
+
+> When you do a mutable borrow, naively, it seems there are 2 mutable references: the original variable and the borrowed variable. That isn't a problem because you can't use one of the 2 mutable references. So you can't modify the data in 2 locations at once. You cannot use `a` and `slice` when both are mutable references. You can use `a` before `slice` exists, or after `slice` is no longer used, but you cannot use `slice` then `a` then `slice`. In short, only one mutable variable can be used at a time.
+
 
 >NOTE: Its important to understand when a variable gets dropped. If variable is dropped and after that only one way to mutate remains, its valid.
 

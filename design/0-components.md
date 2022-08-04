@@ -9,7 +9,9 @@ To relay information between 2 computers on internet, you need the following lay
 1. Network layer - The hardware (Ethernet, mac address, switches, wifi standards etc).
 2. Internet layer - The way to identify the Network. IPv4 and IPv6
 3. Transport layer - The way to format messages so hardware can understand where it starts and ends. And possible ways to check if some messages were drops and if they need to be played back. TCP, UDP etc.
-4. Application layer - Protocols which are desgined for particular applications (like media streaming, multiplexing etc.). HTTP1.1, HTTP2, Websockets,Webrtc etc.
+4. Application layer - Protocols which are desgined for particular applications (like media streaming, multiplexing etc.). HTTP1.1, HTTP2, FTP, Websockets, Webrtc etc.
+
+A better and more accepted model is the OSI model.
 
 
 ### HTTP1.1
