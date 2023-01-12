@@ -64,6 +64,13 @@ enum E {
 }
 ```
 
+#### Patterns
+
+Having [Java like inheritance in Rust](https://github.com/rust-unofficial/patterns/blob/main/anti_patterns/deref.md)
+
+```rust
+```
+
 More complicated and detailed customization is [possible with serde](https://serde.rs/attributes.html)
 
 ## Other packages
@@ -72,10 +79,12 @@ More complicated and detailed customization is [possible with serde](https://ser
 - Easier error management - [Anyhow](https://docs.rs/anyhow/1.0.53/anyhow/)
 - Date time management - [Chrono](https://docs.rs/chrono/0.4.19/chrono/)
 - Logging - [Log](https://docs.rs/log/0.4.14/log/)
-- [Opentelemetry](https://docs.rs/opentelemetry/0.17.0/opentelemetry/) 
+- [Opentelemetry](https://docs.rs/opentelemetry/0.17.0/opentelemetry/)
 - Http clients - [Hyper](https://hyper.rs/guides/client/basic/) , [Reqwest](https://docs.rs/reqwest/0.11.9/reqwest/)
 - Command line argument parser - [Clap](https://crates.io/crates/clap)
 - Caching Memoization - [Cached](https://crates.io/crates/cached)
 - Filesystem walking - [WalkDir](https://crates.io/crates/walkdir), [Glob](https://docs.rs/glob/0.3.0/glob/)
 
+## Axum with SeaORM
 
+[Book management app](https://github.com/lz1998/axum-book-management)
