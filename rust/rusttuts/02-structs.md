@@ -43,7 +43,16 @@ fn build_user(email: String, username: String) -> User {
 let user3 = User {
     email: String::from("another@example.com"),
     username: String::from("anotherusername567"),
-    ..user1                                             // Update using another struct
+    ..user1                                             // Update using another struct, which gets moved here since
+                                                        // email and username are String and do not implement Copy
+							// (Copy is by default implemented by primitive values only)
+};
+
+// Better Update syntax if you want to use u1 later
+let user3 = User {
+    email: String::from("another@example.com"),
+    username: String::from("anotherusername567"),
+    ..user1.clone()                                     // User must to also implement #[derive(Clone)]
 };
 
 // Tuple struct without field names

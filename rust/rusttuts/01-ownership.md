@@ -114,7 +114,7 @@ fn takes_and_gives_back(a_string: String) -> String { // a_string comes into sco
 }
 ```
 
-**You are return 2 values (tuples) from functions too**
+**You can return 2 values (tuples) from functions too**
 
 ```rust
 fn main() {
@@ -252,6 +252,7 @@ let slice = &a[1..3]        Slice is of type &[i32]
 
 > NOTE: You can have as many immutable references as you want and NO mutable reference
 > You can have only one mutable reference but then, NO immutable references
+> You can borrow the ownership of a variable, and when the borrowed reference is out of scope, *ownership returns to the owner variable*. 
 
 > Borrowing rules enforce that only variable is allowed to mutate the data at a time. **If the mutable borrow is no longer used**, then we can freely mutate the original variable, or use immutable borrows of it.
 
