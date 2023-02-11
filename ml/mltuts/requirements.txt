@@ -1,4 +1,4 @@
-ipython==7.8.0
+ipython==8.10.0
 pandas==0.25.3
 spyder==3.3.6
 sklearn==0.21.3
