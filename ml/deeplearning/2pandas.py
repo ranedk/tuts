@@ -85,3 +85,4 @@ df = pd.DataFrame(data, columns=['x', 'y'])  # Vertically stack data1, data2 and
 # Draw hexbin which shows in 2D space the distribution and the centers of the distributions
 # We can also do a scatter plot, but hexbin creates bins and color codes the density
 df.plot(kind='hexbin', x='x', y='y', bins=100, cmap='rainbow', title='Hexbin Plot');
+
